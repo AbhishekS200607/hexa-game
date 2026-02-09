@@ -1,14 +1,52 @@
 const express = require('express');
 const path = require('path');
+const http = require('http');
+const WebSocket = require('ws');
 require('dotenv').config();
 
 const routes = require('./routes');
 const advancedRoutes = require('./advanced-routes');
 const authRoutes = require('./auth-routes');
 const settingsRoutes = require('./settings-routes');
+const runRoutes = require('./run-routes');
+const itemRoutes = require('./item-routes');
+const squadRoutes = require('./squad-routes');
 
 const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 3000;
+
+const clients = new Map();
+
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    const data = JSON.parse(message);
+    if (data.type === 'register') {
+      clients.set(data.userId, ws);
+    }
+  });
+  ws.on('close', () => {
+    for (const [userId, client] of clients.entries()) {
+      if (client === ws) clients.delete(userId);
+    }
+  });
+});
+
+app.locals.broadcast = (event, data) => {
+  clients.forEach((ws) => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ event, data }));
+    }
+  });
+};
+
+app.locals.notifyUser = (userId, event, data) => {
+  const ws = clients.get(userId);
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ event, data }));
+  }
+};
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
@@ -17,6 +55,9 @@ app.use('/api', routes);
 app.use('/api', advancedRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', settingsRoutes);
+app.use('/api', runRoutes);
+app.use('/api', itemRoutes);
+app.use('/api', squadRoutes);
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/login.html'));
@@ -46,6 +87,11 @@ app.get('/settings', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/settings.html'));
 });
 
-app.listen(PORT, () => {
+app.get('/squad', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/squad.html'));
+});
+
+server.listen(PORT, () => {
   console.log(`Hexa server running on http://localhost:${PORT}`);
+  console.log(`WebSocket server ready`);
 });

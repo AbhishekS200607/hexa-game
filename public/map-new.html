@@ -108,16 +108,13 @@ tailwind.config = {
 </div>
 </div>
 
-<div class="absolute left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-4 w-80">
+<div class="absolute left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-4 w-80 max-w-[calc(100vw-16rem)]" id="statsPanel">
 <div class="glass-panel p-8 rounded-[2.5rem] shadow-2xl border-white/5">
-<div class="flex items-center justify-between mb-8">
-<h3 class="font-display font-black text-2xl tracking-tight uppercase">Live Stats</h3>
-<div class="flex items-center gap-2">
-<span class="text-[10px] font-bold text-accent-teal tracking-widest uppercase">Recording</span>
-<span class="flex h-2.5 w-2.5 rounded-full bg-accent-teal animate-pulse"></span>
+<div class="flex items-center justify-between mb-8" id="recordingIndicator" style="display:none;">
+<h3 class="font-display font-black text-2xl tracking-tight uppercase">Recording</h3>
+<span class="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse"></span>
 </div>
-</div>
-<div class="space-y-4">
+<div class="space-y-4" id="statsCards">
 <div class="bg-accent-teal p-6 rounded-3xl text-black relative overflow-hidden">
 <div class="relative z-10">
 <div class="flex items-center gap-2 mb-1">
@@ -139,15 +136,26 @@ tailwind.config = {
 <p class="text-lg font-mono font-bold truncate" id="currentHex">-</p>
 </div>
 </div>
+<div class="bg-accent-orange p-6 rounded-3xl text-black relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-black/60 text-lg">route</span>
+<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Run Distance</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-display font-black" id="runDistanceValue">0.00</span>
+<span class="text-sm font-bold opacity-60">km</span>
+</div>
+</div>
+</div>
 <div class="bg-accent-blue p-6 rounded-3xl text-white relative overflow-hidden">
 <div class="relative z-10">
 <div class="flex items-center gap-2 mb-1">
-<span class="material-symbols-outlined text-white/60 text-lg">route</span>
-<span class="text-[11px] font-black uppercase tracking-widest text-white/60">Distance</span>
+<span class="material-symbols-outlined text-white/60 text-lg">timer</span>
+<span class="text-[11px] font-black uppercase tracking-widest text-white/60">Duration</span>
 </div>
 <div class="flex items-baseline gap-1">
-<span class="text-3xl font-display font-black" id="distanceValue">0</span>
-<span class="text-sm font-bold opacity-60">km</span>
+<span class="text-3xl font-display font-black" id="durationValue">00:00</span>
 </div>
 </div>
 </div>
@@ -177,7 +185,19 @@ tailwind.config = {
 </div>
 </div>
 </div>
+<div class="glass-panel p-5 rounded-[2rem] flex items-center gap-4 border-white/5 mt-4">
+<div>
+<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Distance</p>
+<p class="text-2xl font-display font-black text-white"><span id="distanceValue">0</span> <span class="text-xs font-bold text-zinc-500 uppercase">km</span></p>
 </div>
+</div>
+</div>
+</div>
+
+<button id="runToggle" class="absolute left-8 bottom-8 z-[1000] w-80 max-w-[calc(100vw-16rem)] p-6 rounded-3xl flex items-center justify-center gap-4 border-2 border-accent-teal bg-accent-teal text-black font-display font-black text-xl uppercase tracking-tight active:scale-95 transition-all shadow-[0_20px_50px_rgba(74,222,189,0.3)] hidden md:flex" onclick="toggleRun()">
+<span class="material-symbols-outlined text-4xl font-black" id="runIcon">play_circle</span>
+<span id="runText">Start Run</span>
+</button>
 
 <div class="absolute right-8 top-1/2 -translate-y-1/2 z-[1000] flex flex-col gap-4">
 <div class="bg-black/40 border border-white/10 p-2 rounded-2xl flex flex-col gap-2">
@@ -195,12 +215,18 @@ tailwind.config = {
 <a href="/items" class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-white shadow-xl">
 <span class="material-symbols-outlined text-3xl">inventory_2</span>
 </a>
+<button class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-yellow-400 shadow-xl" onclick="setHomeBase()" title="Set Home Base">
+<span class="material-symbols-outlined text-3xl">home</span>
+</button>
+<a href="/squad" class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-purple-400 shadow-xl" title="Squad">
+<span class="material-symbols-outlined text-3xl">group</span>
+</a>
 </div>
 
-<div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-8 text-center">
-<button class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-4 transition-all active:scale-95" onclick="stopTracking()">
-<span class="material-symbols-outlined text-3xl font-black">stop_circle</span>
-<span class="tracking-tight text-xl uppercase">Stop Tracking</span>
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-8 text-center md:hidden">
+<button id="runToggleMobile" class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-4 transition-all active:scale-95" onclick="toggleRun()">
+<span class="material-symbols-outlined text-3xl font-black" id="runIconMobile">play_circle</span>
+<span class="tracking-tight text-xl uppercase" id="runTextMobile">Start Run</span>
 </button>
 </div>
 </div>
@@ -216,12 +242,55 @@ let lastPosition = null;
 let lastMoveTime = Date.now();
 let currentHexLayer = null;
 let visitedHexesLayer = null;
+let ws = null;
+let runId = null;
+let runActive = false;
+let runPath = null;
+let runStartTime = null;
+let runDistance = 0;
+let durationInterval = null;
 
 const FACTION_COLORS = {
   NEON_SYNDICATE: '#4ADEBD',
   WILDKEEPERS: '#85c3a8',
   IRON_VANGUARD: '#FF6B35'
 };
+
+function connectWebSocket() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${window.location.host}`);
+  
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'register', userId: parseInt(userId) }));
+  };
+  
+  ws.onmessage = (event) => {
+    const { event: eventType, data } = JSON.parse(event.data);
+    
+    if (eventType === 'territory_lost') {
+      showNotification('⚠️ Territory Lost!', `Hex ${data.h3Index.substring(0, 8)} was captured`);
+      loadVisitedHexes();
+    } else if (eventType === 'territory_update') {
+      loadVisitedHexes();
+    }
+  };
+  
+  ws.onclose = () => setTimeout(connectWebSocket, 3000);
+}
+
+function showNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification(title, { body });
+  }
+  document.getElementById('statusMessage').textContent = title;
+}
+
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+connectWebSocket();
+setInterval(loadVisitedHexes, 30000);
 
 map = L.map('map', { zoomControl: false }).setView([0, 0], 18);
 
@@ -232,9 +301,56 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 currentHexLayer = L.layerGroup().addTo(map);
 visitedHexesLayer = L.layerGroup().addTo(map);
+runPath = L.polyline([], { color: '#4ADEBD', weight: 4, opacity: 0.8 }).addTo(map);
 
 loadVisitedHexes();
 loadUserData();
+
+async function toggleRun() {
+  if (!runActive) {
+    const res = await fetch('/api/run/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId })
+    });
+    const data = await res.json();
+    runId = data.runId;
+    runActive = true;
+    runStartTime = Date.now();
+    runDistance = 0;
+    runPath.setLatLngs([]);
+    document.getElementById('recordingIndicator').style.display = 'flex';
+    document.getElementById('runIcon').textContent = 'stop_circle';
+    document.getElementById('runText').textContent = 'Stop Run';
+    if (document.getElementById('runIconMobile')) {
+      document.getElementById('runIconMobile').textContent = 'stop_circle';
+      document.getElementById('runTextMobile').textContent = 'Stop Run';
+    }
+    durationInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - runStartTime) / 1000);
+      const mins = Math.floor(elapsed / 60);
+      const secs = elapsed % 60;
+      document.getElementById('durationValue').textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }, 1000);
+  } else {
+    clearInterval(durationInterval);
+    const res = await fetch('/api/run/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ runId })
+    });
+    const data = await res.json();
+    runActive = false;
+    document.getElementById('recordingIndicator').style.display = 'none';
+    document.getElementById('runIcon').textContent = 'play_circle';
+    document.getElementById('runText').textContent = 'Start Run';
+    if (document.getElementById('runIconMobile')) {
+      document.getElementById('runIconMobile').textContent = 'play_circle';
+      document.getElementById('runTextMobile').textContent = 'Start Run';
+    }
+    alert(`Run Complete!\nDistance: ${data.distance.toFixed(2)}km`);
+  }
+}
 
 async function loadUserData() {
   try {
@@ -243,13 +359,56 @@ async function loadUserData() {
     
     document.getElementById('userName').textContent = data.username;
     document.getElementById('userAvatar').textContent = data.username[0].toUpperCase();
-    document.getElementById('userLevel').textContent = `Level ${Math.floor(data.exp / 100) + 1}`;
+    document.getElementById('userLevel').textContent = `Level ${Math.floor(data.exp / 100) + 1} ${data.player_class}`;
     document.getElementById('capturedCount').textContent = data.hexes;
     document.getElementById('energyValue').textContent = data.energy;
     document.getElementById('distanceValue').textContent = data.distance.toFixed(1);
   } catch (error) {
     console.error('Failed to load user data:', error);
   }
+}
+
+async function setHomeBase() {
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-symbols-outlined text-3xl animate-spin">refresh</span>';
+  
+  if (!navigator.geolocation) {
+    alert('GPS not supported');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const res = await fetch('/api/home/set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        userId, 
+        lat: position.coords.latitude, 
+        lng: position.coords.longitude 
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('🏠 Home base set! Capture hexes here for bonus XP!');
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
+  }, (error) => {
+    if (error.code === error.TIMEOUT) {
+      alert('GPS timeout. Try again or move to open area.');
+    } else {
+      alert('GPS error: ' + error.message);
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
+  }, {
+    enableHighAccuracy: true,
+    timeout: 30000,
+    maximumAge: 5000
+  });
 }
 
 async function loadVisitedHexes() {
@@ -269,21 +428,23 @@ async function loadVisitedHexes() {
     data.hexData.forEach(hex => {
       const center = h3.cellToLatLng(hex.h3Index);
       
-      console.log('Drawing circle at:', center);
+      const defenseColors = ['#4ADEBD', '#85c3a8', '#FFD700', '#FF8C56', '#FF4757'];
+      const circleColor = defenseColors[hex.defenseLevel - 1] || hex.color;
+      const opacity = 0.2 + (hex.defenseLevel * 0.1);
       
       L.circle([center[0], center[1]], {
         radius: 60,
-        color: hex.color,
-        fillColor: hex.color,
-        fillOpacity: 0.2,
-        weight: 2,
-        opacity: 0.6
+        color: circleColor,
+        fillColor: circleColor,
+        fillOpacity: opacity,
+        weight: 2 + hex.defenseLevel,
+        opacity: 0.6 + (hex.defenseLevel * 0.08)
       }).addTo(visitedHexesLayer);
       
       const label = L.marker([center[0], center[1]], {
         icon: L.divIcon({
           className: 'hex-label',
-          html: `<div style="background:rgba(0,0,0,0.7);color:white;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:bold;white-space:nowrap;">${hex.ownerName || 'Unknown'}</div>`,
+          html: `<div style="background:rgba(0,0,0,0.7);color:white;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:bold;white-space:nowrap;">${hex.ownerName || 'Unknown'} ⭐${hex.defenseLevel}</div>`,
           iconSize: [100, 30],
           iconAnchor: [50, 15]
         })
@@ -334,6 +495,23 @@ function updateHexagon(lat, lng) {
 }
 
 async function captureHex(lat, lng, h3Index, speed) {
+  if (runActive && runId) {
+    if (lastPosition) {
+      const R = 6371;
+      const dLat = (lat - lastPosition.lat) * Math.PI / 180;
+      const dLng = (lng - lastPosition.lng) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lastPosition.lat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+      runDistance += 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      document.getElementById('runDistanceValue').textContent = runDistance.toFixed(2);
+    }
+    fetch('/api/run/point', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ runId, latitude: lat, longitude: lng, accuracy: 10, timestamp: Date.now() })
+    });
+    runPath.addLatLng([lat, lng]);
+  }
+  
   try {
     const response = await fetch('/api/move', {
       method: 'POST',

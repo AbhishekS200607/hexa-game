@@ -45,7 +45,7 @@ router.post('/move', moveLimit, async (req, res) => {
       await connection.beginTransaction();
 
       const [userData] = await connection.query(
-        'SELECT faction, activity_mode, energy FROM users WHERE id = ?',
+        'SELECT faction, activity_mode, energy, player_class, home_lat, home_lng FROM users WHERE id = ?',
         [userId]
       );
 
@@ -55,7 +55,18 @@ router.post('/move', moveLimit, async (req, res) => {
 
       const userFaction = userData[0].faction;
       const activityMode = userData[0].activity_mode;
+      const playerClass = userData[0].player_class;
       let userEnergy = userData[0].energy;
+
+      const classBonus = {
+        SCOUT: { xp: 1.2, vision: 2 },
+        TANK: { defense: 2, energy: 0.8 },
+        SPRINTER: { speed: 1.5, xp: 1.1 }
+      };
+
+      const isNearHome = userData[0].home_lat && userData[0].home_lng && 
+        Math.abs(lat - userData[0].home_lat) < 0.001 && 
+        Math.abs(lng - userData[0].home_lng) < 0.001;
 
       await connection.query(
         'INSERT IGNORE INTO visited_hexes (user_id, h3_index) VALUES (?, ?)',
@@ -90,7 +101,8 @@ router.post('/move', moveLimit, async (req, res) => {
           message = 'Max defense reached';
         }
       } else {
-        const energyCost = existing[0].defense_level * 10;
+        const baseCost = existing[0].defense_level * 10;
+        const energyCost = playerClass === 'TANK' ? Math.floor(baseCost * classBonus.TANK.energy) : baseCost;
         if (userEnergy >= energyCost) {
           await connection.query(
             'UPDATE hexagons SET owner_id = ?, faction = ?, defense_level = 1, captured_at = NOW() WHERE h3_index = ?',
@@ -105,6 +117,12 @@ router.post('/move', moveLimit, async (req, res) => {
       }
 
       let xpGain = 10;
+      if (playerClass === 'SCOUT') xpGain = Math.floor(xpGain * classBonus.SCOUT.xp);
+      if (playerClass === 'SPRINTER') xpGain = Math.floor(xpGain * classBonus.SPRINTER.xp);
+      if (isNearHome) {
+        xpGain = Math.floor(xpGain * 1.5);
+        message += ' +50% home bonus!';
+      }
       if (existing.length > 0 && existing[0].faction === userFaction && existing[0].owner_id !== userId) {
         xpGain = Math.floor(xpGain * 1.1);
         message += ' +10% team bonus!';
@@ -129,6 +147,26 @@ router.post('/move', moveLimit, async (req, res) => {
         'SELECT COUNT(*) as count FROM hexagons WHERE owner_id = ?',
         [userId]
       );
+
+      if (conquered && existing.length > 0 && existing[0].owner_id) {
+        if (req.app.locals.notifyUser) {
+          req.app.locals.notifyUser(existing[0].owner_id, 'territory_lost', {
+            h3Index: serverH3,
+            capturedBy: userId
+          });
+        }
+      }
+
+      if (conquered || reinforced) {
+        if (req.app.locals.broadcast) {
+          req.app.locals.broadcast('territory_update', {
+            h3Index: serverH3,
+            ownerId: userId,
+            faction: userFaction,
+            defenseLevel: conquered ? 1 : existing[0].defense_level + 1
+          });
+        }
+      }
 
       res.json({
         success: true,
@@ -249,3 +287,18 @@ router.get('/reset/:userId', async (req, res) => {
 });
 
 module.exports = router;
+
+
+router.post('/home/set', async (req, res) => {
+  try {
+    const { userId, lat, lng } = req.body;
+    await pool.query(
+      'UPDATE users SET home_lat = ?, home_lng = ? WHERE id = ?',
+      [lat, lng, userId]
+    );
+    res.json({ success: true, message: 'Home base set!' });
+  } catch (error) {
+    console.error('Set home error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
