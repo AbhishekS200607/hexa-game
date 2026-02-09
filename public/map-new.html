@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hexa - High-Contrast Conquest Map</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        'accent-teal': "#4ADEBD",
+        'accent-orange': "#FF6B35",
+        'accent-blue': "#2D7FF9",
+        "background-dark": "#000000",
+      },
+      fontFamily: {
+        display: ["Outfit", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+      borderRadius: {
+        DEFAULT: "1.5rem",
+        '2xl': '2rem',
+        '3xl': '2.5rem',
+      },
+    },
+  },
+};
+</script>
+<style type="text/tailwindcss">
+:root {
+  --teal: #4ADEBD;
+  --orange: #FF6B35;
+  --blue: #2D7FF9;
+}
+.hex-grid-bg {
+  background-color: #000000;
+  background-image: radial-gradient(circle at 50% 50%, rgba(74, 222, 189, 0.05) 0%, transparent 70%);
+}
+.pulse-marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  background-color: var(--teal);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--teal);
+}
+.pulse-marker::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--teal);
+  border-radius: 50%;
+  animation: pulse 2.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.glass-panel {
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+#map { position: absolute; inset: 0; }
+</style>
+</head>
+<body class="bg-background-dark text-white font-sans overflow-hidden h-screen">
+<div class="relative w-full h-full hex-grid-bg">
+<div id="map"></div>
+
+<div class="absolute top-8 left-8 right-8 flex justify-between items-center z-20">
+<div class="flex items-center gap-4">
+<a href="/" class="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined text-white text-3xl">menu</span>
+</a>
+<div class="px-8 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center gap-4">
+<span class="material-symbols-outlined text-accent-teal">near_me</span>
+<span class="font-bold text-sm text-white tracking-wide" id="locationText">Locating...</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all relative">
+<span class="material-symbols-outlined text-white">notifications</span>
+<div class="absolute top-4 right-4 w-2 h-2 bg-accent-orange rounded-full"></div>
+</div>
+<div class="flex items-center gap-4 bg-black/40 border border-white/10 px-4 py-2 rounded-2xl">
+<div class="text-right">
+<p class="text-[10px] text-zinc-500 font-black uppercase tracking-tighter" id="userLevel">Level 1</p>
+<p class="text-sm font-bold text-white" id="userName">Player</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-accent-teal flex items-center justify-center ring-2 ring-white/10 font-bold text-black" id="userAvatar">P</div>
+</div>
+</div>
+</div>
+
+<div class="absolute left-8 top-1/2 -translate-y-1/2 z-20 space-y-4 w-80">
+<div class="glass-panel p-8 rounded-[2.5rem] shadow-2xl border-white/5">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-display font-black text-2xl tracking-tight uppercase">Live Stats</h3>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-accent-teal tracking-widest uppercase">Recording</span>
+<span class="flex h-2.5 w-2.5 rounded-full bg-accent-teal animate-pulse"></span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-accent-teal p-6 rounded-3xl text-black relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-black/60 text-lg">speed</span>
+<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Speed</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-display font-black" id="speedValue">0</span>
+<span class="text-sm font-bold opacity-60">km/h</span>
+</div>
+</div>
+</div>
+<div class="bg-accent-orange p-6 rounded-3xl text-black relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-black/60 text-lg">grid_view</span>
+<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Current Hex</span>
+</div>
+<p class="text-lg font-mono font-bold truncate" id="currentHex">-</p>
+</div>
+</div>
+<div class="bg-accent-blue p-6 rounded-3xl text-white relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-white/60 text-lg">route</span>
+<span class="text-[11px] font-black uppercase tracking-widest text-white/60">Distance</span>
+</div>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-display font-black" id="distanceValue">0</span>
+<span class="text-sm font-bold opacity-60">km</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/10 flex justify-between">
+<div>
+<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Captured</p>
+<p class="text-2xl font-display font-black text-white"><span id="capturedCount">0</span> <span class="text-xs font-bold text-zinc-500 uppercase">Hexes</span></p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Energy</p>
+<p class="text-2xl font-display font-black text-white" id="energyValue">100</p>
+</div>
+</div>
+</div>
+<div class="glass-panel p-5 rounded-[2rem] flex items-center gap-4 border-white/5">
+<div class="w-14 h-14 rounded-2xl bg-accent-teal/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-teal text-3xl">emoji_events</span>
+</div>
+<div>
+<p class="text-sm font-black text-white uppercase tracking-tight" id="statusMessage">GPS Active</p>
+<div class="flex items-center gap-2 mt-1">
+<div class="h-1.5 w-24 bg-zinc-800 rounded-full overflow-hidden">
+<div class="h-full bg-accent-teal" id="progressBar" style="width: 0%"></div>
+</div>
+<p class="text-[10px] font-bold text-zinc-400" id="progressText">0%</p>
+</div>
+</div>
+</div>
+</div>
+
+<div class="absolute right-8 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-4">
+<div class="bg-black/40 border border-white/10 p-2 rounded-2xl flex flex-col gap-2">
+<button class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomIn()">
+<span class="material-symbols-outlined">add</span>
+</button>
+<div class="h-px bg-white/10 mx-2"></div>
+<button class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomOut()">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+<button class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-accent-teal shadow-xl" onclick="centerMap()">
+<span class="material-symbols-outlined text-3xl">my_location</span>
+</button>
+<a href="/items" class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-white shadow-xl">
+<span class="material-symbols-outlined text-3xl">inventory_2</span>
+</a>
+</div>
+
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 w-full max-w-md px-8 text-center">
+<button class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-4 transition-all active:scale-95" onclick="stopTracking()">
+<span class="material-symbols-outlined text-3xl font-black">stop_circle</span>
+<span class="tracking-tight text-xl uppercase">Stop Tracking</span>
+</button>
+</div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script src="https://unpkg.com/h3-js@4.1.0/dist/h3-js.umd.js"></script>
+<script src="/js/gps.js"></script>
+<script>
+const MAPBOX_TOKEN = 'YOUR_MAPBOX_TOKEN';
+mapboxgl.accessToken = MAPBOX_TOKEN;
+
+const userId = localStorage.getItem('userId') || 1;
+let currentH3Index = null;
+let map = null;
+let lastPosition = null;
+let lastMoveTime = Date.now();
+let startTime = Date.now();
+
+const FACTION_COLORS = {
+  NEON_SYNDICATE: '#4ADEBD',
+  WILDKEEPERS: '#85c3a8',
+  IRON_VANGUARD: '#FF6B35'
+};
+
+map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/dark-v11',
+  center: [0, 0],
+  zoom: 15
+});
+
+map.on('load', () => {
+  map.addSource('current-hex', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] }
+  });
+
+  map.addSource('visited-hexes', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] }
+  });
+
+  map.addLayer({
+    id: 'visited-fill',
+    type: 'fill',
+    source: 'visited-hexes',
+    paint: {
+      'fill-color': ['get', 'color'],
+      'fill-opacity': 0.3
+    }
+  });
+
+  map.addLayer({
+    id: 'visited-outline',
+    type: 'line',
+    source: 'visited-hexes',
+    paint: {
+      'line-color': ['get', 'color'],
+      'line-width': 2
+    }
+  });
+
+  map.addLayer({
+    id: 'hex-fill',
+    type: 'fill',
+    source: 'current-hex',
+    paint: {
+      'fill-color': '#4ADEBD',
+      'fill-opacity': 0.2
+    }
+  });
+
+  map.addLayer({
+    id: 'hex-outline',
+    type: 'line',
+    source: 'current-hex',
+    paint: {
+      'line-color': '#4ADEBD',
+      'line-width': 3
+    }
+  });
+
+  loadVisitedHexes();
+  loadUserData();
+});
+
+async function loadUserData() {
+  try {
+    const response = await fetch(`/api/stats/${userId}`);
+    const data = await response.json();
+    
+    document.getElementById('userName').textContent = data.username;
+    document.getElementById('userAvatar').textContent = data.username[0].toUpperCase();
+    document.getElementById('userLevel').textContent = `Level ${Math.floor(data.exp / 100) + 1}`;
+    document.getElementById('capturedCount').textContent = data.hexes;
+    document.getElementById('energyValue').textContent = data.energy;
+    document.getElementById('distanceValue').textContent = data.distance.toFixed(1);
+  } catch (error) {
+    console.error('Failed to load user data:', error);
+  }
+}
+
+async function loadVisitedHexes() {
+  try {
+    const response = await fetch(`/api/map/${userId}`);
+    const data = await response.json();
+    
+    const features = data.hexData.map(hex => {
+      const boundary = h3.cellToBoundary(hex.h3Index, true);
+      const coordinates = boundary.map(coord => [coord[1], coord[0]]);
+      coordinates.push(coordinates[0]);
+      
+      return {
+        type: 'Feature',
+        properties: { color: hex.color },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [coordinates]
+        }
+      };
+    });
+
+    map.getSource('visited-hexes').setData({
+      type: 'FeatureCollection',
+      features
+    });
+  } catch (error) {
+    console.error('Failed to load visited hexes:', error);
+  }
+}
+
+function calculateSpeed(lat1, lng1, lat2, lng2, timeMs) {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c;
+
+  return (distance / 1000) / (timeMs / 3600000);
+}
+
+function updateHexagon(lat, lng) {
+  const h3Index = h3.latLngToCell(lat, lng, 9);
+  const boundary = h3.cellToBoundary(h3Index, true);
+  
+  const coordinates = boundary.map(coord => [coord[1], coord[0]]);
+  coordinates.push(coordinates[0]);
+
+  map.getSource('current-hex').setData({
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [coordinates]
+      }
+    }]
+  });
+
+  document.getElementById('currentHex').textContent = h3Index.substring(0, 13);
+
+  if (h3Index !== currentH3Index) {
+    currentH3Index = h3Index;
+    
+    let speed = 0;
+    if (lastPosition) {
+      const now = Date.now();
+      speed = calculateSpeed(lastPosition.lat, lastPosition.lng, lat, lng, now - lastMoveTime);
+      lastMoveTime = now;
+    }
+    lastPosition = { lat, lng };
+    
+    document.getElementById('speedValue').textContent = speed.toFixed(1);
+    captureHex(lat, lng, h3Index, speed);
+  }
+}
+
+async function captureHex(lat, lng, h3Index, speed) {
+  try {
+    const response = await fetch('/api/move', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat, lng, h3Index, userId, speed })
+    });
+
+    const data = await response.json();
+    
+    if (data.passiveMode) {
+      document.getElementById('statusMessage').textContent = 'Passive Mode';
+    } else if (data.success) {
+      document.getElementById('statusMessage').textContent = data.message;
+      document.getElementById('capturedCount').textContent = data.stats.hexes;
+      document.getElementById('energyValue').textContent = data.stats.energy;
+      document.getElementById('distanceValue').textContent = data.stats.distance.toFixed(1);
+      loadVisitedHexes();
+    }
+  } catch (error) {
+    console.error('Capture error:', error);
+  }
+}
+
+function centerMap() {
+  if (lastPosition) {
+    map.flyTo({ center: [lastPosition.lng, lastPosition.lat], zoom: 16 });
+  }
+}
+
+function stopTracking() {
+  if (confirm('Stop tracking and return to dashboard?')) {
+    window.location.href = '/';
+  }
+}
+
+startTracking((position) => {
+  map.setCenter([position.lng, position.lat]);
+  updateHexagon(position.lat, position.lng);
+  document.getElementById('locationText').textContent = 'GPS Active';
+});
+</script>
+<script src="/js/theme-toggle.js"></script>
+</body>
+</html>

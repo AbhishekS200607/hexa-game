@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hexa Elite - Global Leaderboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#3b82f6",
+        "background-dark": "#000000",
+        "card-dark": "#111111",
+        "accent-teal": "#2dd4bf",
+        "accent-orange": "#f97316",
+        "accent-blue": "#3b82f6",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+<style type="text/tailwindcss">
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+</style>
+</head>
+<body class="font-sans min-h-screen overflow-x-hidden antialiased">
+<nav class="sticky top-0 z-50 px-8 py-6 flex items-center justify-between bg-black/80 backdrop-blur-md">
+<a href="/" class="flex items-center gap-3">
+<div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold">grid_view</span>
+</div>
+<span class="text-3xl font-display font-bold tracking-tighter">HEXA</span>
+</a>
+<div class="hidden md:flex items-center gap-12 text-sm font-bold uppercase tracking-widest">
+<a class="hover:text-accent-teal transition-colors" href="/map">Map</a>
+<a class="text-white border-b-2 border-white pb-1" href="/leaderboard">Leaderboard</a>
+<a class="hover:text-accent-teal transition-colors" href="/items">Shop</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right">
+<div class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold leading-none mb-1">Total Hexes</div>
+<div class="text-xl font-display font-bold leading-none" id="totalHexes">0</div>
+</div>
+</div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-8 py-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20">
+<div>
+<h1 class="text-6xl md:text-8xl font-display font-bold tracking-tighter mb-6 leading-none">
+Global<br/>Empire
+</h1>
+<p class="text-xl text-zinc-500 max-w-md font-medium">Your real-world movement translates to absolute digital dominance.</p>
+</div>
+<div class="flex bg-zinc-900 p-1.5 rounded-full w-fit">
+<button class="px-10 py-3 rounded-full bg-white text-black font-bold text-sm transition-all" onclick="loadLeaderboard('global')">GLOBAL</button>
+<button class="px-10 py-3 rounded-full text-zinc-500 hover:text-white font-bold text-sm transition-all" onclick="loadLeaderboard('local')">LOCAL</button>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-24" id="topThree">
+<!-- Top 3 will be loaded here -->
+</div>
+
+<div class="space-y-6">
+<div class="flex items-center justify-between px-12 mb-8">
+<h2 class="text-2xl font-display font-bold tracking-tight uppercase">Elite Vanguard</h2>
+<div class="flex items-center gap-2 text-zinc-500 font-bold text-[10px] uppercase tracking-widest">
+<span class="w-2 h-2 bg-accent-teal rounded-full animate-pulse"></span>
+Updated Real-Time
+</div>
+</div>
+<div id="leaderboardList">
+<!-- Ranks 4+ will be loaded here -->
+</div>
+</div>
+
+<div class="mt-16 flex justify-center">
+<button class="bg-zinc-900 hover:bg-white hover:text-black transition-all px-12 py-5 rounded-full font-bold text-sm tracking-widest uppercase flex items-center gap-3" onclick="loadMore()">
+Expand Leaderboard
+<span class="material-symbols-outlined font-bold">expand_more</span>
+</button>
+</div>
+</main>
+
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 z-50">
+<div class="bg-white p-6 rounded-[3rem] flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+<div class="flex items-center gap-5">
+<div class="relative">
+<div class="w-14 h-14 rounded-full bg-accent-teal flex items-center justify-center font-bold text-black text-xl" id="yourAvatar">U</div>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-accent-teal border-4 border-white rounded-full"></div>
+</div>
+<div>
+<div class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Current Position</div>
+<div class="flex items-center gap-3">
+<span class="font-display font-bold text-3xl text-black" id="yourRank">#-</span>
+<span class="text-xs font-black text-accent-teal bg-accent-teal/10 px-2 py-0.5 rounded-full">NEW</span>
+</div>
+</div>
+</div>
+<a href="/map" class="bg-black text-white px-8 py-4 rounded-full font-bold text-xs tracking-widest uppercase hover:scale-105 active:scale-95 transition-all">
+CONQUER
+</a>
+</div>
+</div>
+
+<div class="fixed top-1/4 -right-64 w-[600px] h-[600px] bg-accent-teal/10 blur-[160px] rounded-full -z-10"></div>
+<div class="fixed bottom-1/4 -left-64 w-[600px] h-[600px] bg-accent-orange/5 blur-[160px] rounded-full -z-10"></div>
+
+<script>
+const userId = localStorage.getItem('userId') || 1;
+
+async function loadLeaderboard(type) {
+  try {
+    const url = type === 'global' ? '/api/leaderboard/global' : '/api/leaderboard/local/default';
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const leaders = data.leaderboard;
+    
+    // Calculate total hexes
+    const total = leaders.reduce((sum, l) => sum + l.hexes, 0);
+    document.getElementById('totalHexes').textContent = total.toLocaleString();
+    
+    // Top 3
+    const topThree = leaders.slice(0, 3);
+    const topThreeHTML = [
+      // Silver (2nd)
+      topThree[1] ? `
+      <div class="group relative bg-zinc-900/40 rounded-[4rem] p-10 flex flex-col items-center border border-white/5 hover:border-accent-teal/30 transition-all">
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-accent-teal rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(45,212,191,0.2)]">
+          <span class="text-3xl font-display font-black text-black">02</span>
+        </div>
+        <div class="w-32 h-32 rounded-full mb-8 mt-4 bg-accent-teal/20 flex items-center justify-center text-5xl font-bold">${topThree[1].username[0]}</div>
+        <h3 class="text-3xl font-display font-bold mb-2">${topThree[1].username}</h3>
+        <span class="text-accent-teal text-sm font-bold tracking-widest uppercase mb-8">Silver Tier</span>
+        <div class="grid grid-cols-2 w-full gap-4 text-center">
+          <div class="bg-black/40 rounded-3xl py-4">
+            <div class="text-2xl font-display font-bold">${(topThree[1].hexes / 1000).toFixed(1)}k</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Hexes</div>
+          </div>
+          <div class="bg-black/40 rounded-3xl py-4">
+            <div class="text-2xl font-display font-bold">LVL ${Math.floor(topThree[1].exp_points / 100)}</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Level</div>
+          </div>
+        </div>
+      </div>` : '',
+      
+      // Gold (1st)
+      topThree[0] ? `
+      <div class="group relative bg-white rounded-[4rem] p-12 flex flex-col items-center shadow-[0_0_80px_rgba(255,255,255,0.1)] scale-105 z-10">
+        <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-24 h-24 bg-accent-orange rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.4)]">
+          <span class="text-4xl font-display font-black text-black">01</span>
+        </div>
+        <div class="w-40 h-40 rounded-full mb-8 mt-4 border-4 border-black/5 bg-accent-orange/20 flex items-center justify-center text-6xl font-bold text-black">${topThree[0].username[0]}</div>
+        <h3 class="text-4xl font-display font-bold mb-2 text-black">${topThree[0].username}</h3>
+        <span class="text-zinc-500 text-sm font-bold tracking-widest uppercase mb-10">Reigning Emperor</span>
+        <div class="grid grid-cols-2 w-full gap-4 text-center">
+          <div class="bg-zinc-100 rounded-3xl py-6">
+            <div class="text-3xl font-display font-bold text-black">${(topThree[0].hexes / 1000).toFixed(1)}k</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Hexes</div>
+          </div>
+          <div class="bg-zinc-100 rounded-3xl py-6">
+            <div class="text-3xl font-display font-bold text-black">LVL ${Math.floor(topThree[0].exp_points / 100)}</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Level</div>
+          </div>
+        </div>
+      </div>` : '',
+      
+      // Bronze (3rd)
+      topThree[2] ? `
+      <div class="group relative bg-zinc-900/40 rounded-[4rem] p-10 flex flex-col items-center border border-white/5 hover:border-accent-blue/30 transition-all">
+        <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-accent-blue rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(59,130,246,0.2)]">
+          <span class="text-3xl font-display font-black text-black">03</span>
+        </div>
+        <div class="w-32 h-32 rounded-full mb-8 mt-4 bg-accent-blue/20 flex items-center justify-center text-5xl font-bold">${topThree[2].username[0]}</div>
+        <h3 class="text-3xl font-display font-bold mb-2">${topThree[2].username}</h3>
+        <span class="text-accent-blue text-sm font-bold tracking-widest uppercase mb-8">Bronze Tier</span>
+        <div class="grid grid-cols-2 w-full gap-4 text-center">
+          <div class="bg-black/40 rounded-3xl py-4">
+            <div class="text-2xl font-display font-bold">${(topThree[2].hexes / 1000).toFixed(1)}k</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Hexes</div>
+          </div>
+          <div class="bg-black/40 rounded-3xl py-4">
+            <div class="text-2xl font-display font-bold">LVL ${Math.floor(topThree[2].exp_points / 100)}</div>
+            <div class="text-[10px] uppercase font-bold text-zinc-500 tracking-widest">Level</div>
+          </div>
+        </div>
+      </div>` : ''
+    ];
+    
+    document.getElementById('topThree').innerHTML = topThreeHTML.join('');
+    
+    // Rest of leaderboard
+    const rest = leaders.slice(3, 10);
+    const colors = ['accent-teal', 'accent-orange', 'accent-blue', 'purple-400'];
+    
+    const listHTML = rest.map((leader, i) => {
+      const rank = i + 4;
+      const color = colors[i % colors.length];
+      return `
+      <div class="flex items-center bg-zinc-900/60 rounded-full p-4 pl-8 pr-12 group hover:bg-zinc-800 transition-all border border-transparent hover:border-white/10">
+        <div class="w-16 text-3xl font-display font-black text-zinc-700 group-hover:text-white transition-colors">${rank.toString().padStart(2, '0')}</div>
+        <div class="flex-1 flex items-center gap-6">
+          <div class="w-16 h-16 rounded-full bg-${color}/20 flex items-center justify-center text-2xl font-bold">${leader.username[0]}</div>
+          <div>
+            <div class="text-xl font-bold">${leader.username}</div>
+            <div class="text-xs font-bold text-zinc-500 uppercase tracking-widest">${leader.faction.replace('_', ' ')}</div>
+          </div>
+        </div>
+        <div class="hidden lg:block px-12">
+          <div class="bg-${color}/10 text-${color} px-6 py-2 rounded-full text-xs font-black">LVL ${Math.floor(leader.exp_points / 100)}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-3xl font-display font-bold">${leader.hexes.toLocaleString()}</div>
+          <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Hexes</div>
+        </div>
+      </div>
+      `;
+    }).join('');
+    
+    document.getElementById('leaderboardList').innerHTML = listHTML;
+    
+    // Find user rank
+    const userRank = leaders.findIndex(l => l.id == userId) + 1;
+    if (userRank > 0) {
+      document.getElementById('yourRank').textContent = `#${userRank}`;
+    }
+    
+    // Load user data
+    const userResponse = await fetch(`/api/stats/${userId}`);
+    const userData = await userResponse.json();
+    document.getElementById('yourAvatar').textContent = userData.username[0].toUpperCase();
+    
+  } catch (error) {
+    console.error('Failed to load leaderboard:', error);
+  }
+}
+
+function loadMore() {
+  alert('Loading more players...');
+}
+
+loadLeaderboard('global');
+</script>
+<script src="/js/theme-toggle.js"></script>
+</body>
+</html>

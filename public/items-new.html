@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Armory - Hexa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "accent-teal": "#2dd4bf",
+        "accent-orange": "#f97316",
+        "accent-blue": "#3b82f6",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+<style type="text/tailwindcss">
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+.hex-grid-bg {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+</style>
+</head>
+<body class="font-sans min-h-screen overflow-x-hidden antialiased hex-grid-bg">
+<nav class="sticky top-0 z-50 px-8 py-6 flex items-center justify-between bg-black/80 backdrop-blur-md border-b border-white/5">
+<a href="/" class="flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold text-xl">grid_view</span>
+</div>
+<span class="text-2xl font-display font-bold tracking-tighter">HEXA</span>
+</a>
+<div class="hidden md:flex items-center gap-12 text-sm font-bold uppercase tracking-widest">
+<a class="hover:text-accent-teal transition-colors" href="/map">Map</a>
+<a class="hover:text-accent-teal transition-colors" href="/leaderboard">Leaderboard</a>
+<a class="hover:text-accent-teal transition-colors" href="/profile">Profile</a>
+<a class="text-white border-b-2 border-white pb-1" href="/items">Armory</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right">
+<div class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold leading-none mb-1">Energy</div>
+<div class="text-xl font-display font-bold leading-none" id="userEnergy">100</div>
+</div>
+</div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-8 py-12">
+<div class="mb-12">
+<h1 class="text-6xl md:text-7xl font-display font-bold tracking-tighter leading-none mb-4 uppercase">Armory</h1>
+<p class="text-xl text-zinc-400 font-medium">Deploy strategic items and mark your territory</p>
+</div>
+
+<div class="mb-16">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-3xl font-display font-bold tracking-tight uppercase flex items-center gap-3">
+<span class="w-1.5 h-8 bg-accent-teal rounded-full"></span>
+Tactical Items
+</h2>
+<div class="text-sm text-zinc-500 font-bold uppercase tracking-widest">Click to deploy</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-accent-teal rounded-[3rem] p-10 flex flex-col justify-between h-[380px] shadow-[0_20px_60px_rgba(45,212,191,0.2)] hover:scale-[1.02] transition-transform cursor-pointer group" onclick="placeItem('LANDMINE')">
+<div>
+<span class="material-symbols-outlined text-black text-6xl mb-6">bomb</span>
+<h3 class="text-black font-black text-3xl mb-2 uppercase tracking-tight">Landmine</h3>
+<p class="text-black/70 text-base font-medium">Enemy raiders lose energy when entering this hex</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-black/60 text-sm font-bold uppercase tracking-widest">Cost</span>
+<span class="text-black text-2xl font-display font-black">50</span>
+</div>
+<div class="h-1 bg-black/20 rounded-full overflow-hidden">
+<div class="h-full bg-black/40 w-1/2"></div>
+</div>
+</div>
+</div>
+
+<div class="bg-accent-blue rounded-[3rem] p-10 flex flex-col justify-between h-[380px] shadow-[0_20px_60px_rgba(59,130,246,0.2)] hover:scale-[1.02] transition-transform cursor-pointer group" onclick="placeItem('SHIELD')">
+<div>
+<span class="material-symbols-outlined text-white text-6xl mb-6">shield</span>
+<h3 class="text-white font-black text-3xl mb-2 uppercase tracking-tight">Shield</h3>
+<p class="text-white/70 text-base font-medium">Protects 7 surrounding hexes for 24 hours</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-white/60 text-sm font-bold uppercase tracking-widest">Cost</span>
+<span class="text-white text-2xl font-display font-black">100</span>
+</div>
+<div class="h-1 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white/40 w-full"></div>
+</div>
+</div>
+</div>
+
+<div class="bg-accent-orange rounded-[3rem] p-10 flex flex-col justify-between h-[380px] shadow-[0_20px_60px_rgba(249,115,22,0.2)] hover:scale-[1.02] transition-transform cursor-pointer group" onclick="placeItem('BEACON')">
+<div>
+<span class="material-symbols-outlined text-black text-6xl mb-6">cell_tower</span>
+<h3 class="text-black font-black text-3xl mb-2 uppercase tracking-tight">Beacon</h3>
+<p class="text-black/70 text-base font-medium">Alert squad members to rally at this location</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-black/60 text-sm font-bold uppercase tracking-widest">Cost</span>
+<span class="text-black text-2xl font-display font-black">30</span>
+</div>
+<div class="h-1 bg-black/20 rounded-full overflow-hidden">
+<div class="h-full bg-black/40 w-1/3"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div>
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-3xl font-display font-bold tracking-tight uppercase flex items-center gap-3">
+<span class="w-1.5 h-8 bg-accent-orange rounded-full"></span>
+Territory Markers
+</h2>
+<div class="text-sm text-zinc-500 font-bold uppercase tracking-widest">Free to place</div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<div class="bg-zinc-900/60 border border-white/10 hover:border-accent-teal/50 rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105" onclick="placeGraffiti('NICE_TRY')">
+<span class="text-5xl">😏</span>
+<span class="text-sm font-bold text-center uppercase tracking-widest">Nice Try</span>
+</div>
+
+<div class="bg-zinc-900/60 border border-white/10 hover:border-accent-teal/50 rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105" onclick="placeGraffiti('MY_TURF')">
+<span class="text-5xl">👑</span>
+<span class="text-sm font-bold text-center uppercase tracking-widest">My Turf</span>
+</div>
+
+<div class="bg-zinc-900/60 border border-white/10 hover:border-accent-teal/50 rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105" onclick="placeGraffiti('RUN_FASTER')">
+<span class="text-5xl">⚡</span>
+<span class="text-sm font-bold text-center uppercase tracking-widest">Run Faster</span>
+</div>
+
+<div class="bg-zinc-900/60 border border-white/10 hover:border-accent-teal/50 rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105" onclick="placeGraffiti('VICTORY')">
+<span class="text-5xl">🎉</span>
+<span class="text-sm font-bold text-center uppercase tracking-widest">Victory</span>
+</div>
+
+<div class="bg-zinc-900/60 border border-white/10 hover:border-accent-teal/50 rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105" onclick="placeGraffiti('CHALLENGE')">
+<span class="text-5xl">⚔️</span>
+<span class="text-sm font-bold text-center uppercase tracking-widest">Challenge</span>
+</div>
+</div>
+</div>
+</main>
+
+<div class="fixed top-1/4 -right-64 w-[600px] h-[600px] bg-accent-teal/5 blur-[160px] rounded-full -z-10"></div>
+<div class="fixed bottom-1/4 -left-64 w-[600px] h-[600px] bg-accent-orange/5 blur-[160px] rounded-full -z-10"></div>
+
+<script src="https://unpkg.com/h3-js@4.1.0/dist/h3-js.umd.js"></script>
+<script>
+if (!localStorage.getItem('userId')) {
+  window.location.href = '/login';
+}
+
+const userId = localStorage.getItem('userId') || 1;
+
+async function loadEnergy() {
+  try {
+    const response = await fetch(`/api/stats/${userId}`);
+    const data = await response.json();
+    document.getElementById('userEnergy').textContent = data.energy;
+  } catch (error) {
+    console.error('Failed to load energy:', error);
+  }
+}
+
+async function placeItem(itemType) {
+  if (!navigator.geolocation) {
+    alert('Geolocation not supported');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const h3Index = h3.latLngToCell(position.coords.latitude, position.coords.longitude, 9);
+    
+    const response = await fetch('/api/items/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, itemType, h3Index })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      alert(`${itemType} deployed successfully! 🎯`);
+      loadEnergy();
+    } else {
+      alert(data.error || 'Failed to place item');
+    }
+  });
+}
+
+async function placeGraffiti(stickerType) {
+  if (!navigator.geolocation) {
+    alert('Geolocation not supported');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const h3Index = h3.latLngToCell(position.coords.latitude, position.coords.longitude, 9);
+    
+    const response = await fetch('/api/graffiti/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, h3Index, stickerType })
+    });
+
+    if (response.ok) {
+      alert('Territory marked! 🎨');
+    }
+  });
+}
+
+loadEnergy();
+</script>
+<script src="/js/theme-toggle.js"></script>
+</body>
+</html>

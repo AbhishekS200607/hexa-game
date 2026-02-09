@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hexa - Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "accent-teal": "#4ADEBD",
+        "accent-orange": "#FF6B35",
+        "accent-blue": "#2D7FF9",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+</head>
+<body class="bg-black text-white font-display min-h-screen flex items-center justify-center p-4">
+<div class="max-w-md w-full">
+<div class="text-center mb-12">
+<div class="w-20 h-20 bg-accent-teal rounded-full mx-auto mb-6 flex items-center justify-center text-4xl font-black text-black">H</div>
+<h1 class="text-5xl font-black tracking-tighter mb-2">HEXA</h1>
+<p class="text-zinc-500">Conquer the real world</p>
+</div>
+
+<div class="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+<div class="flex gap-2 mb-8">
+<button class="flex-1 py-3 rounded-xl font-bold transition-all" id="loginTab" onclick="showLogin()">Login</button>
+<button class="flex-1 py-3 rounded-xl font-bold transition-all" id="signupTab" onclick="showSignup()">Sign Up</button>
+</div>
+
+<form id="loginForm" onsubmit="handleLogin(event)">
+<div class="space-y-4">
+<input type="text" id="loginUsername" placeholder="Username" required class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all"/>
+<input type="password" id="loginPassword" placeholder="Password" required class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all"/>
+<button type="submit" class="w-full py-4 bg-accent-teal text-black font-black rounded-xl hover:bg-white transition-all">LOGIN</button>
+</div>
+</form>
+
+<form id="signupForm" class="hidden" onsubmit="handleSignup(event)">
+<div class="space-y-4">
+<input type="text" id="signupUsername" placeholder="Username" required class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all"/>
+<input type="email" id="signupEmail" placeholder="Email" required class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all"/>
+<input type="password" id="signupPassword" placeholder="Password" required class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all"/>
+<div>
+<label class="text-sm text-zinc-400 mb-2 block">Choose Your Faction</label>
+<select id="factionSelect" class="w-full px-6 py-4 bg-black/50 border border-white/10 rounded-xl focus:border-accent-teal outline-none transition-all">
+<option value="NEON_SYNDICATE">Neon Syndicate (Cyberpunk)</option>
+<option value="WILDKEEPERS">Wildkeepers (Nature)</option>
+<option value="IRON_VANGUARD">Iron Vanguard (Industrial)</option>
+</select>
+</div>
+<button type="submit" class="w-full py-4 bg-accent-teal text-black font-black rounded-xl hover:bg-white transition-all">CREATE ACCOUNT</button>
+</div>
+</form>
+
+<div id="errorMsg" class="hidden mt-4 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm"></div>
+</div>
+</div>
+
+<div class="fixed top-1/4 -right-64 w-[600px] h-[600px] bg-accent-teal/10 blur-[160px] rounded-full -z-10"></div>
+<div class="fixed bottom-1/4 -left-64 w-[600px] h-[600px] bg-accent-orange/5 blur-[160px] rounded-full -z-10"></div>
+
+<script>
+function showLogin() {
+  document.getElementById('loginForm').classList.remove('hidden');
+  document.getElementById('signupForm').classList.add('hidden');
+  document.getElementById('loginTab').classList.add('bg-accent-teal', 'text-black');
+  document.getElementById('signupTab').classList.remove('bg-accent-teal', 'text-black');
+}
+
+function showSignup() {
+  document.getElementById('loginForm').classList.add('hidden');
+  document.getElementById('signupForm').classList.remove('hidden');
+  document.getElementById('signupTab').classList.add('bg-accent-teal', 'text-black');
+  document.getElementById('loginTab').classList.remove('bg-accent-teal', 'text-black');
+}
+
+function showError(msg) {
+  const errorDiv = document.getElementById('errorMsg');
+  errorDiv.textContent = msg;
+  errorDiv.classList.remove('hidden');
+  setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('username', data.username);
+      window.location.href = '/';
+    } else {
+      showError(data.error || 'Login failed');
+    }
+  } catch (error) {
+    showError('Connection error');
+  }
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  const username = document.getElementById('signupUsername').value;
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  const faction = document.getElementById('factionSelect').value;
+
+  try {
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, faction })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('username', data.username);
+      window.location.href = '/';
+    } else {
+      showError(data.error || 'Signup failed');
+    }
+  } catch (error) {
+    showError('Connection error');
+  }
+}
+
+showLogin();
+
+if (localStorage.getItem('userId')) {
+  window.location.href = '/';
+}
+</script>
+</body>
+</html>

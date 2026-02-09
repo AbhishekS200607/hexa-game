@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - Hexa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "accent-teal": "#2dd4bf",
+        "accent-orange": "#f97316",
+        "accent-blue": "#3b82f6",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+<style type="text/tailwindcss">
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+.hex-grid-bg {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+</style>
+</head>
+<body class="font-sans min-h-screen overflow-x-hidden antialiased hex-grid-bg">
+<nav class="sticky top-0 z-50 px-8 py-6 flex items-center justify-between bg-black/80 backdrop-blur-md border-b border-white/5">
+<a href="/" class="flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold text-xl">grid_view</span>
+</div>
+<span class="text-2xl font-display font-bold tracking-tighter">HEXA</span>
+</a>
+<div class="hidden md:flex items-center gap-12 text-sm font-bold uppercase tracking-widest">
+<a class="hover:text-accent-teal transition-colors" href="/map">Map</a>
+<a class="hover:text-accent-teal transition-colors" href="/leaderboard">Leaderboard</a>
+<a class="hover:text-accent-teal transition-colors" href="/profile">Profile</a>
+<a class="hover:text-accent-teal transition-colors" href="/items">Armory</a>
+</div>
+<button onclick="logout()" class="px-6 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-full text-sm font-bold uppercase tracking-widest transition-colors">
+Logout
+</button>
+</nav>
+
+<main class="max-w-5xl mx-auto px-8 py-12">
+<div class="mb-12">
+<h1 class="text-6xl md:text-7xl font-display font-bold tracking-tighter leading-none mb-4 uppercase">Settings</h1>
+<p class="text-xl text-zinc-400 font-medium">Customize your experience</p>
+</div>
+
+<div class="space-y-6">
+<!-- Account Settings -->
+<div class="bg-zinc-900/60 border border-white/10 rounded-3xl p-8">
+<h2 class="text-2xl font-display font-bold tracking-tight uppercase flex items-center gap-3 mb-6">
+<span class="w-1.5 h-6 bg-accent-teal rounded-full"></span>
+Account
+</h2>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-bold uppercase tracking-widest text-zinc-400 mb-2">Username</label>
+<input type="text" id="username" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:border-accent-teal focus:outline-none" readonly/>
+</div>
+<div>
+<label class="block text-sm font-bold uppercase tracking-widest text-zinc-400 mb-2">Email</label>
+<input type="email" id="email" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:border-accent-teal focus:outline-none"/>
+</div>
+<div>
+<label class="block text-sm font-bold uppercase tracking-widest text-zinc-400 mb-2">Faction</label>
+<select id="faction" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:border-accent-teal focus:outline-none">
+<option value="NEON_SYNDICATE">Neon Syndicate</option>
+<option value="WILDKEEPERS">Wildkeepers</option>
+<option value="IRON_VANGUARD">Iron Vanguard</option>
+</select>
+</div>
+</div>
+</div>
+
+<!-- Gameplay Settings -->
+<div class="bg-zinc-900/60 border border-white/10 rounded-3xl p-8">
+<h2 class="text-2xl font-display font-bold tracking-tight uppercase flex items-center gap-3 mb-6">
+<span class="w-1.5 h-6 bg-accent-orange rounded-full"></span>
+Gameplay
+</h2>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-bold uppercase tracking-widest text-zinc-400 mb-2">Player Class</label>
+<select id="playerClass" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:border-accent-orange focus:outline-none">
+<option value="SCOUT">Scout - Reveals more fog</option>
+<option value="TANK">Tank - Higher defense</option>
+<option value="SPRINTER">Sprinter - Faster movement</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-bold uppercase tracking-widest text-zinc-400 mb-2">Activity Mode</label>
+<select id="activityMode" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-medium focus:border-accent-orange focus:outline-none">
+<option value="FOOT">Foot - Walking/Running</option>
+<option value="CAVALRY">Cavalry - Biking</option>
+</select>
+</div>
+<div class="flex items-center justify-between py-2">
+<div>
+<div class="text-sm font-bold uppercase tracking-widest text-white">GPS High Accuracy</div>
+<div class="text-xs text-zinc-500 mt-1">Better precision, higher battery usage</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="gpsAccuracy" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-orange"></div>
+</label>
+</div>
+<div class="flex items-center justify-between py-2">
+<div>
+<div class="text-sm font-bold uppercase tracking-widest text-white">Screen Wake Lock</div>
+<div class="text-xs text-zinc-500 mt-1">Keep screen on during gameplay</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="wakeLock" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-orange"></div>
+</label>
+</div>
+</div>
+</div>
+
+<!-- Display Settings -->
+<div class="bg-zinc-900/60 border border-white/10 rounded-3xl p-8">
+<h2 class="text-2xl font-display font-bold tracking-tight uppercase flex items-center gap-3 mb-6">
+<span class="w-1.5 h-6 bg-accent-blue rounded-full"></span>
+Display
+</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between py-2">
+<div>
+<div class="text-sm font-bold uppercase tracking-widest text-white">Dark Mode</div>
+<div class="text-xs text-zinc-500 mt-1">Toggle light/dark theme</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="darkMode" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue"></div>
+</label>
+</div>
+<div class="flex items-center justify-between py-2">
+<div>
+<div class="text-sm font-bold uppercase tracking-widest text-white">Show Notifications</div>
+<div class="text-xs text-zinc-500 mt-1">Territory alerts and updates</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input type="checkbox" id="notifications" class="sr-only peer" checked>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-blue"></div>
+</label>
+</div>
+</div>
+</div>
+
+<!-- Save Button -->
+<button onclick="saveSettings()" class="w-full bg-accent-teal hover:bg-accent-teal/80 text-black font-black text-lg uppercase tracking-widest py-4 rounded-2xl transition-colors shadow-[0_10px_40px_rgba(45,212,191,0.3)]">
+Save Changes
+</button>
+
+<!-- Danger Zone -->
+<div class="bg-red-950/20 border border-red-600/30 rounded-3xl p-8">
+<h2 class="text-2xl font-display font-bold tracking-tight uppercase flex items-center gap-3 mb-4 text-red-500">
+<span class="w-1.5 h-6 bg-red-600 rounded-full"></span>
+Danger Zone
+</h2>
+<button onclick="deleteAccount()" class="px-6 py-3 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-xl text-sm font-bold uppercase tracking-widest transition-colors text-red-500">
+Delete Account
+</button>
+</div>
+</div>
+</main>
+
+<div class="fixed top-1/4 -right-64 w-[600px] h-[600px] bg-accent-teal/5 blur-[160px] rounded-full -z-10"></div>
+<div class="fixed bottom-1/4 -left-64 w-[600px] h-[600px] bg-accent-blue/5 blur-[160px] rounded-full -z-10"></div>
+
+<script>
+if (!localStorage.getItem('userId')) {
+  window.location.href = '/login';
+}
+
+const userId = localStorage.getItem('userId');
+
+async function loadSettings() {
+  try {
+    const response = await fetch(`/api/stats/${userId}`);
+    const data = await response.json();
+    
+    document.getElementById('username').value = data.username;
+    document.getElementById('email').value = data.email || '';
+    document.getElementById('faction').value = data.teamColor || data.faction;
+    document.getElementById('playerClass').value = data.player_class || 'SCOUT';
+    document.getElementById('activityMode').value = data.activity_mode || 'FOOT';
+    
+    const darkMode = localStorage.getItem('theme') === 'dark';
+    document.getElementById('darkMode').checked = darkMode;
+    
+    const gpsAccuracy = localStorage.getItem('gpsAccuracy') !== 'false';
+    document.getElementById('gpsAccuracy').checked = gpsAccuracy;
+    
+    const wakeLock = localStorage.getItem('wakeLock') !== 'false';
+    document.getElementById('wakeLock').checked = wakeLock;
+    
+    const notifications = localStorage.getItem('notifications') !== 'false';
+    document.getElementById('notifications').checked = notifications;
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+  }
+}
+
+async function saveSettings() {
+  const email = document.getElementById('email').value;
+  const faction = document.getElementById('faction').value;
+  const playerClass = document.getElementById('playerClass').value;
+  const activityMode = document.getElementById('activityMode').value;
+  
+  try {
+    const response = await fetch('/api/settings/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, email, faction, playerClass, activityMode })
+    });
+    
+    if (response.ok) {
+      localStorage.setItem('theme', document.getElementById('darkMode').checked ? 'dark' : 'light');
+      localStorage.setItem('gpsAccuracy', document.getElementById('gpsAccuracy').checked);
+      localStorage.setItem('wakeLock', document.getElementById('wakeLock').checked);
+      localStorage.setItem('notifications', document.getElementById('notifications').checked);
+      
+      alert('Settings saved successfully!');
+    } else {
+      alert('Failed to save settings');
+    }
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    alert('Error saving settings');
+  }
+}
+
+document.getElementById('darkMode').addEventListener('change', (e) => {
+  document.documentElement.classList.toggle('dark', e.target.checked);
+});
+
+function logout() {
+  if (confirm('Are you sure you want to logout?')) {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    window.location.href = '/login';
+  }
+}
+
+function deleteAccount() {
+  if (confirm('⚠️ WARNING: This will permanently delete your account and all data. This cannot be undone!')) {
+    if (confirm('Are you absolutely sure? Type your username to confirm.')) {
+      // Implement delete account API call
+      alert('Account deletion not yet implemented');
+    }
+  }
+}
+
+loadSettings();
+</script>
+</body>
+</html>

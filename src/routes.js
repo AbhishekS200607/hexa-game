@@ -1,0 +1,227 @@
+const express = require('express');
+const { latLngToCell } = require('h3-js');
+const pool = require('./database');
+const rateLimit = require('express-rate-limit');
+
+const router = express.Router();
+
+const moveLimit = rateLimit({
+  windowMs: 5000,
+  max: 1,
+  message: { error: 'Too many requests, wait 5 seconds' }
+});
+
+const FACTION_COLORS = {
+  NEON_SYNDICATE: '#00d9ff',
+  WILDKEEPERS: '#85c3a8',
+  IRON_VANGUARD: '#ff4757'
+};
+
+function calculateSpeed(distance, timeMs) {
+  return (distance / 1000) / (timeMs / 3600000);
+}
+
+router.post('/move', moveLimit, async (req, res) => {
+  try {
+    const { lat, lng, h3Index, userId, speed = 0 } = req.body;
+
+    if (!lat || !lng || !userId) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (speed > 30) {
+      return res.json({ success: false, message: 'Passive mode: Speed too high', passiveMode: true });
+    }
+
+    const serverH3 = latLngToCell(lat, lng, 9);
+    
+    if (h3Index !== serverH3) {
+      return res.status(400).json({ error: 'H3 index mismatch' });
+    }
+
+    const connection = await pool.getConnection();
+    
+    try {
+      await connection.beginTransaction();
+
+      const [userData] = await connection.query(
+        'SELECT faction, activity_mode, energy FROM users WHERE id = ?',
+        [userId]
+      );
+
+      if (userData.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userFaction = userData[0].faction;
+      const activityMode = userData[0].activity_mode;
+      let userEnergy = userData[0].energy;
+
+      await connection.query(
+        'INSERT IGNORE INTO visited_hexes (user_id, h3_index) VALUES (?, ?)',
+        [userId, serverH3]
+      );
+
+      const [existing] = await connection.query(
+        'SELECT owner_id, faction, defense_level FROM hexagons WHERE h3_index = ?',
+        [serverH3]
+      );
+
+      let conquered = false;
+      let reinforced = false;
+      let message = '';
+      
+      if (existing.length === 0) {
+        await connection.query(
+          'INSERT INTO hexagons (h3_index, owner_id, faction, defense_level) VALUES (?, ?, ?, 1)',
+          [serverH3, userId, userFaction]
+        );
+        conquered = true;
+        message = 'Neutral hex captured!';
+      } else if (existing[0].owner_id === userId) {
+        if (existing[0].defense_level < 5) {
+          await connection.query(
+            'UPDATE hexagons SET defense_level = defense_level + 1, last_reinforced = NOW() WHERE h3_index = ?',
+            [serverH3]
+          );
+          reinforced = true;
+          message = 'Territory reinforced!';
+        } else {
+          message = 'Max defense reached';
+        }
+      } else {
+        const energyCost = existing[0].defense_level * 10;
+        if (userEnergy >= energyCost) {
+          await connection.query(
+            'UPDATE hexagons SET owner_id = ?, faction = ?, defense_level = 1, captured_at = NOW() WHERE h3_index = ?',
+            [userId, userFaction, serverH3]
+          );
+          userEnergy -= energyCost;
+          conquered = true;
+          message = `Enemy hex captured! (-${energyCost} energy)`;
+        } else {
+          message = `Not enough energy (need ${energyCost})`;
+        }
+      }
+
+      let xpGain = 10;
+      if (existing.length > 0 && existing[0].faction === userFaction && existing[0].owner_id !== userId) {
+        xpGain = Math.floor(xpGain * 1.1);
+        message += ' +10% team bonus!';
+      }
+
+      const distanceGain = activityMode === 'CAVALRY' ? 0.2 : 0.1;
+      userEnergy = Math.min(userEnergy + 5, 100);
+
+      await connection.query(
+        'UPDATE users SET total_distance = total_distance + ?, exp_points = exp_points + ?, energy = ? WHERE id = ?',
+        [distanceGain, xpGain, userEnergy, userId]
+      );
+
+      await connection.commit();
+
+      const [updatedUser] = await connection.query(
+        'SELECT total_distance, exp_points, energy FROM users WHERE id = ?',
+        [userId]
+      );
+
+      const [hexCount] = await connection.query(
+        'SELECT COUNT(*) as count FROM hexagons WHERE owner_id = ?',
+        [userId]
+      );
+
+      res.json({
+        success: true,
+        conquered,
+        reinforced,
+        message,
+        h3Index: serverH3,
+        stats: {
+          hexes: hexCount[0].count,
+          distance: updatedUser[0].total_distance,
+          exp: updatedUser[0].exp_points,
+          energy: updatedUser[0].energy
+        }
+      });
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+  } catch (error) {
+    console.error('Move error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.get('/stats/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [userData] = await pool.query(
+      'SELECT username, email, total_distance, exp_points, faction, energy, activity_mode, player_class FROM users WHERE id = ?',
+      [userId]
+    );
+
+    const [hexCount] = await pool.query(
+      'SELECT COUNT(*) as count FROM hexagons WHERE owner_id = ?',
+      [userId]
+    );
+
+    if (userData.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      username: userData[0].username,
+      email: userData[0].email,
+      hexes: hexCount[0].count,
+      distance: userData[0].total_distance,
+      exp: userData[0].exp_points,
+      energy: userData[0].energy,
+      faction: userData[0].faction,
+      activityMode: userData[0].activity_mode,
+      player_class: userData[0].player_class,
+      factionColor: FACTION_COLORS[userData[0].faction]
+    });
+
+  } catch (error) {
+    console.error('Stats error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.get('/map/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const [visited] = await pool.query(
+      'SELECT h3_index FROM visited_hexes WHERE user_id = ?',
+      [userId]
+    );
+
+    const [hexes] = await pool.query(
+      'SELECT h3_index, faction, defense_level FROM hexagons WHERE h3_index IN (?)',
+      [visited.map(v => v.h3_index)]
+    );
+
+    res.json({
+      visitedHexes: visited.map(v => v.h3_index),
+      hexData: hexes.map(h => ({
+        h3Index: h.h3_index,
+        faction: h.faction,
+        color: FACTION_COLORS[h.faction],
+        defenseLevel: h.defense_level
+      }))
+    });
+
+  } catch (error) {
+    console.error('Map error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;

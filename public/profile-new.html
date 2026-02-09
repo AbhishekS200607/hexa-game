@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Empire Profile - Hexa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#3b82f6",
+        "background-dark": "#000000",
+        "card-dark": "#111111",
+        "accent-teal": "#2dd4bf",
+        "accent-orange": "#f97316",
+        "accent-blue": "#3b82f6",
+      },
+      fontFamily: {
+        display: ["Space Grotesk", "sans-serif"],
+        sans: ["Inter", "sans-serif"],
+      },
+    },
+  },
+};
+</script>
+<style type="text/tailwindcss">
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+}
+.glowing-ring {
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), inset 0 0 20px rgba(59, 130, 246, 0.3);
+  border: 4px solid #3b82f6;
+}
+.custom-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.hex-grid-bg {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+</style>
+</head>
+<body class="font-sans min-h-screen overflow-x-hidden antialiased hex-grid-bg">
+<nav class="sticky top-0 z-50 px-8 py-6 flex items-center justify-between bg-black/80 backdrop-blur-md border-b border-white/5">
+<a href="/" class="flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-black font-bold text-xl">grid_view</span>
+</div>
+<span class="text-2xl font-display font-bold tracking-tighter">HEXA</span>
+</a>
+<div class="hidden md:flex items-center gap-12 text-sm font-bold uppercase tracking-widest">
+<a class="hover:text-accent-teal transition-colors" href="/map">Map</a>
+<a class="hover:text-accent-teal transition-colors" href="/leaderboard">Leaderboard</a>
+<a class="text-white border-b-2 border-white pb-1" href="/profile-new">Profile</a>
+<a class="hover:text-accent-teal transition-colors" href="/items">Shop</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-zinc-900 px-4 py-2 rounded-full border border-white/10">
+<span class="w-2 h-2 bg-accent-teal rounded-full"></span>
+<span class="text-xs font-bold tracking-widest uppercase">Online</span>
+</div>
+</div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-8 py-12">
+<div class="flex flex-col items-center mb-16">
+<div class="relative group">
+<div class="absolute inset-0 bg-accent-blue/20 rounded-full blur-3xl group-hover:bg-accent-blue/30 transition-all duration-700"></div>
+<div class="relative w-48 h-48 md:w-56 md:h-56 rounded-full p-2 glowing-ring bg-black">
+<div class="w-full h-full rounded-full bg-accent-blue/20 flex items-center justify-center text-8xl font-bold" id="profileAvatar">U</div>
+<div class="absolute -bottom-2 right-4 bg-accent-blue text-white px-4 py-1 rounded-full font-display font-black text-lg border-4 border-black shadow-lg" id="profileLevel">
+LVL 1
+</div>
+</div>
+</div>
+<div class="text-center mt-8">
+<h1 class="text-5xl md:text-7xl font-display font-bold tracking-tighter leading-none mb-2 uppercase" id="profileName">Player</h1>
+<div class="flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-accent-orange text-3xl">workspace_premium</span>
+<span class="text-xl md:text-2xl font-display font-medium text-zinc-400 tracking-widest uppercase" id="profileRank">Commander</span>
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-accent-teal rounded-[3rem] p-10 flex flex-col justify-between h-[320px] shadow-[0_20px_60px_rgba(45,212,191,0.2)] hover:scale-[1.02] transition-transform cursor-pointer">
+<div>
+<span class="material-symbols-outlined text-black text-5xl mb-4">public</span>
+<h2 class="text-black/60 text-sm font-black uppercase tracking-[0.2em]">Total Conquests</h2>
+</div>
+<div class="flex flex-col">
+<span class="text-black text-7xl font-display font-bold leading-none" id="totalHexes">0</span>
+<span class="text-black/60 text-xs font-bold uppercase mt-2 tracking-widest" id="hexesWeek">+0 this week</span>
+</div>
+</div>
+
+<div class="bg-accent-orange rounded-[3rem] p-10 flex flex-col justify-between h-[320px] shadow-[0_20px_60px_rgba(249,115,22,0.2)] hover:scale-[1.02] transition-transform cursor-pointer">
+<div>
+<span class="material-symbols-outlined text-black text-5xl mb-4">route</span>
+<h2 class="text-black/60 text-sm font-black uppercase tracking-[0.2em]">Distance Traveled</h2>
+</div>
+<div class="flex flex-col">
+<span class="text-black text-7xl font-display font-bold leading-none" id="totalDistance">0</span>
+<span class="text-black/60 text-xs font-bold uppercase mt-2 tracking-widest">kilometers</span>
+</div>
+</div>
+
+<div class="bg-accent-blue rounded-[3rem] p-10 flex flex-col justify-between h-[320px] shadow-[0_20px_60px_rgba(59,130,246,0.2)] hover:scale-[1.02] transition-transform cursor-pointer">
+<div>
+<span class="material-symbols-outlined text-black text-5xl mb-4">bolt</span>
+<h2 class="text-black/60 text-sm font-black uppercase tracking-[0.2em]">Experience Points</h2>
+</div>
+<div class="flex flex-col">
+<span class="text-black text-7xl font-display font-bold leading-none" id="totalExp">0</span>
+<span class="text-black/60 text-xs font-bold uppercase mt-2 tracking-widest" id="expRank">Top 10%</span>
+</div>
+</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-5">
+<div class="custom-glass rounded-[3rem] p-10 h-full border-white/10">
+<h2 class="text-2xl font-display font-bold mb-6 tracking-tight uppercase flex items-center gap-3">
+<span class="w-1.5 h-6 bg-accent-blue rounded-full"></span>
+Faction Info
+</h2>
+<div class="mb-6">
+<div class="text-sm text-zinc-500 uppercase tracking-widest mb-2">Current Faction</div>
+<div class="text-3xl font-display font-bold" id="factionName">-</div>
+</div>
+<div class="mb-6">
+<div class="text-sm text-zinc-500 uppercase tracking-widest mb-2">Player Class</div>
+<div class="text-2xl font-display font-bold" id="playerClass">Scout</div>
+</div>
+<div class="mt-8 flex flex-wrap gap-3">
+<span class="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold text-zinc-300 uppercase tracking-widest">Explorer</span>
+<span class="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold text-zinc-300 uppercase tracking-widest">Tactician</span>
+<span class="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold text-zinc-300 uppercase tracking-widest" id="activityMode">Foot Soldier</span>
+</div>
+</div>
+</div>
+
+<div class="lg:col-span-7">
+<h2 class="text-2xl font-display font-bold mb-6 tracking-tight uppercase flex items-center gap-3 px-4">
+<span class="w-1.5 h-6 bg-accent-teal rounded-full"></span>
+Stats Overview
+</h2>
+<div class="space-y-4">
+<div class="bg-zinc-900/40 border border-white/5 hover:border-white/20 transition-all rounded-3xl p-6 flex items-center justify-between group">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-accent-teal/10 rounded-2xl flex items-center justify-center text-accent-teal">
+<span class="material-symbols-outlined text-3xl">energy</span>
+</div>
+<div>
+<div class="text-lg font-bold group-hover:text-white transition-colors">Energy Level</div>
+<div class="text-sm font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Current Power</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-xl font-display font-bold text-accent-teal" id="energyLevel">100</div>
+</div>
+</div>
+
+<div class="bg-zinc-900/40 border border-white/5 hover:border-white/20 transition-all rounded-3xl p-6 flex items-center justify-between group">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-accent-orange/10 rounded-2xl flex items-center justify-center text-accent-orange">
+<span class="material-symbols-outlined text-3xl">shield</span>
+</div>
+<div>
+<div class="text-lg font-bold group-hover:text-white transition-colors">Defense Rating</div>
+<div class="text-sm font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Territory Protection</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-xl font-display font-bold text-accent-orange">Strong</div>
+</div>
+</div>
+
+<div class="bg-zinc-900/40 border border-white/5 hover:border-white/20 transition-all rounded-3xl p-6 flex items-center justify-between group">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 bg-accent-blue/10 rounded-2xl flex items-center justify-center text-accent-blue">
+<span class="material-symbols-outlined text-3xl">groups</span>
+</div>
+<div>
+<div class="text-lg font-bold group-hover:text-white transition-colors">Squad Status</div>
+<div class="text-sm font-bold text-zinc-500 uppercase tracking-widest mt-0.5" id="squadStatus">No Squad</div>
+</div>
+</div>
+<div class="text-right">
+<button onclick="window.location.href='/profile'" class="text-sm font-bold text-accent-blue hover:underline">Manage</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 z-50">
+<div class="bg-white p-6 rounded-[3rem] flex items-center justify-between shadow-[0_25px_60px_rgba(0,0,0,0.8)]">
+<div class="flex items-center gap-5">
+<div class="relative">
+<div class="w-12 h-12 rounded-full bg-accent-teal flex items-center justify-center font-bold text-black text-xl" id="quickAvatar">U</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-accent-teal border-2 border-white rounded-full"></div>
+</div>
+<div>
+<div class="text-[10px] uppercase font-bold text-zinc-400 tracking-[0.1em]">Quick Command</div>
+<div class="flex items-center gap-3 leading-none">
+<span class="font-display font-bold text-xl text-black">Active Zone</span>
+</div>
+</div>
+</div>
+<a href="/map" class="bg-black text-white px-10 py-4 rounded-full font-bold text-xs tracking-widest uppercase hover:scale-105 active:scale-95 transition-all shadow-lg">
+EXPAND TERRITORY
+</a>
+</div>
+</div>
+
+<div class="fixed top-1/4 -right-64 w-[600px] h-[600px] bg-accent-teal/5 blur-[160px] rounded-full -z-10"></div>
+<div class="fixed bottom-1/4 -left-64 w-[600px] h-[600px] bg-accent-blue/5 blur-[160px] rounded-full -z-10"></div>
+
+<script>
+if (!localStorage.getItem('userId')) {
+  window.location.href = '/login';
+}
+
+const userId = localStorage.getItem('userId') || 1;
+
+async function loadProfile() {
+  try {
+    const response = await fetch(`/api/stats/${userId}`);
+    const data = await response.json();
+    
+    const initial = data.username[0].toUpperCase();
+    document.getElementById('profileName').textContent = data.username;
+    document.getElementById('profileAvatar').textContent = initial;
+    document.getElementById('quickAvatar').textContent = initial;
+    
+    const level = Math.floor(data.exp / 100) + 1;
+    document.getElementById('profileLevel').textContent = `LVL ${level}`;
+    document.getElementById('profileRank').textContent = level > 50 ? 'Emperor' : level > 30 ? 'General' : 'Commander';
+    
+    document.getElementById('totalHexes').textContent = data.hexes.toLocaleString();
+    document.getElementById('totalDistance').textContent = data.distance.toFixed(1);
+    document.getElementById('totalExp').textContent = (data.exp / 1000).toFixed(1) + 'k';
+    document.getElementById('energyLevel').textContent = data.energy;
+    
+    document.getElementById('factionName').textContent = data.faction.replace('_', ' ');
+    document.getElementById('playerClass').textContent = data.playerClass || 'Scout';
+    document.getElementById('activityMode').textContent = data.activityMode === 'CAVALRY' ? 'Cavalry' : 'Foot Soldier';
+    
+  } catch (error) {
+    console.error('Failed to load profile:', error);
+  }
+}
+
+loadProfile();
+</script>
+<script src="/js/theme-toggle.js"></script>
+</body>
+</html>
