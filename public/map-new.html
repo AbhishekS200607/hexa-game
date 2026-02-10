@@ -83,150 +83,100 @@ tailwind.config = {
 <div class="relative w-full h-full hex-grid-bg">
 <div id="map"></div>
 
-<div class="absolute top-8 left-8 right-8 flex justify-between items-center z-[1000]">
-<div class="flex items-center gap-4">
-<a href="/" class="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all">
-<span class="material-symbols-outlined text-white text-3xl">menu</span>
+<div class="absolute top-4 sm:top-8 left-4 sm:left-8 right-4 sm:right-8 flex justify-between items-center z-[1000]">
+<div class="flex items-center gap-2 sm:gap-4">
+<a href="/" class="w-10 h-10 sm:w-14 sm:h-14 bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined text-white text-xl sm:text-3xl">menu</span>
 </a>
-<div class="px-8 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center gap-4">
-<span class="material-symbols-outlined text-accent-teal">near_me</span>
-<span class="font-bold text-sm text-white tracking-wide" id="locationText">Locating...</span>
+<div class="px-3 sm:px-8 h-10 sm:h-14 bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-4">
+<span class="material-symbols-outlined text-accent-teal text-sm sm:text-base">near_me</span>
+<span class="font-bold text-xs sm:text-sm text-white tracking-wide" id="locationText">Locating...</span>
 </div>
 </div>
-<div class="flex items-center gap-4">
-<div class="w-14 h-14 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all relative">
-<span class="material-symbols-outlined text-white">notifications</span>
-<div class="absolute top-4 right-4 w-2 h-2 bg-accent-orange rounded-full"></div>
-</div>
-<div class="flex items-center gap-4 bg-black/40 border border-white/10 px-4 py-2 rounded-2xl">
+<div class="flex items-center gap-2 sm:gap-4">
+<div class="flex items-center gap-2 sm:gap-4 bg-black/40 border border-white/10 px-2 sm:px-4 py-1 sm:py-2 rounded-xl sm:rounded-2xl">
 <div class="text-right">
-<p class="text-[10px] text-zinc-500 font-black uppercase tracking-tighter" id="userLevel">Level 1</p>
-<p class="text-sm font-bold text-white" id="userName">Player</p>
+<p class="text-[8px] sm:text-[10px] text-zinc-500 font-black uppercase tracking-tighter" id="userLevel">Level 1</p>
+<p class="text-xs sm:text-sm font-bold text-white" id="userName">Player</p>
 </div>
-<div class="w-10 h-10 rounded-xl bg-accent-teal flex items-center justify-center ring-2 ring-white/10 font-bold text-black" id="userAvatar">P</div>
+<div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-accent-teal flex items-center justify-center ring-2 ring-white/10 font-bold text-black text-sm sm:text-base" id="userAvatar">P</div>
 </div>
 </div>
 </div>
 
-<div class="absolute left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-4 w-80 max-w-[calc(100vw-16rem)]" id="statsPanel">
-<div class="glass-panel p-8 rounded-[2.5rem] shadow-2xl border-white/5">
-<div class="flex items-center justify-between mb-8" id="recordingIndicator" style="display:none;">
-<h3 class="font-display font-black text-2xl tracking-tight uppercase">Recording</h3>
-<span class="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse"></span>
+<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-48 sm:w-80 max-w-[calc(100vw-8rem)]" id="statsPanel">
+<div class="glass-panel p-3 sm:p-8 rounded-2xl sm:rounded-[2.5rem] shadow-2xl border-white/5">
+<div class="flex items-center justify-between mb-4 sm:mb-8" id="recordingIndicator" style="display:none;">
+<h3 class="font-display font-black text-sm sm:text-2xl tracking-tight uppercase">Recording</h3>
+<span class="flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-red-500 animate-pulse"></span>
 </div>
-<div class="space-y-4" id="statsCards">
-<div class="bg-accent-teal p-6 rounded-3xl text-black relative overflow-hidden">
+<div class="space-y-2 sm:space-y-4" id="statsCards">
+<div class="bg-accent-teal p-3 sm:p-6 rounded-2xl sm:rounded-3xl text-black relative overflow-hidden">
 <div class="relative z-10">
-<div class="flex items-center gap-2 mb-1">
-<span class="material-symbols-outlined text-black/60 text-lg">speed</span>
-<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Speed</span>
+<div class="flex items-center gap-1 sm:gap-2 mb-1">
+<span class="material-symbols-outlined text-black/60 text-sm sm:text-lg">speed</span>
+<span class="text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Speed</span>
 </div>
 <div class="flex items-baseline gap-1">
-<span class="text-4xl font-display font-black" id="speedValue">0</span>
-<span class="text-sm font-bold opacity-60">km/h</span>
+<span class="text-2xl sm:text-4xl font-display font-black" id="speedValue">0</span>
+<span class="text-xs sm:text-sm font-bold opacity-60">km/h</span>
 </div>
 </div>
 </div>
-<div class="bg-accent-orange p-6 rounded-3xl text-black relative overflow-hidden">
+<div class="bg-accent-orange p-3 sm:p-6 rounded-2xl sm:rounded-3xl text-black relative overflow-hidden">
 <div class="relative z-10">
-<div class="flex items-center gap-2 mb-1">
-<span class="material-symbols-outlined text-black/60 text-lg">grid_view</span>
-<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Current Hex</span>
+<div class="flex items-center gap-1 sm:gap-2 mb-1">
+<span class="material-symbols-outlined text-black/60 text-sm sm:text-lg">grid_view</span>
+<span class="text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Hex</span>
 </div>
-<p class="text-lg font-mono font-bold truncate" id="currentHex">-</p>
-</div>
-</div>
-<div class="bg-accent-orange p-6 rounded-3xl text-black relative overflow-hidden">
-<div class="relative z-10">
-<div class="flex items-center gap-2 mb-1">
-<span class="material-symbols-outlined text-black/60 text-lg">route</span>
-<span class="text-[11px] font-black uppercase tracking-widest text-black/60">Run Distance</span>
-</div>
-<div class="flex items-baseline gap-1">
-<span class="text-3xl font-display font-black" id="runDistanceValue">0.00</span>
-<span class="text-sm font-bold opacity-60">km</span>
+<p class="text-xs sm:text-lg font-mono font-bold truncate" id="currentHex">-</p>
 </div>
 </div>
 </div>
-<div class="bg-accent-blue p-6 rounded-3xl text-white relative overflow-hidden">
-<div class="relative z-10">
-<div class="flex items-center gap-2 mb-1">
-<span class="material-symbols-outlined text-white/60 text-lg">timer</span>
-<span class="text-[11px] font-black uppercase tracking-widest text-white/60">Duration</span>
-</div>
-<div class="flex items-baseline gap-1">
-<span class="text-3xl font-display font-black" id="durationValue">00:00</span>
-</div>
-</div>
-</div>
-</div>
-<div class="mt-8 pt-6 border-t border-white/10 flex justify-between">
+<div class="mt-4 sm:mt-8 pt-3 sm:pt-6 border-t border-white/10 flex justify-between">
 <div>
-<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Captured</p>
-<p class="text-2xl font-display font-black text-white"><span id="capturedCount">0</span> <span class="text-xs font-bold text-zinc-500 uppercase">Hexes</span></p>
+<p class="text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Captured</p>
+<p class="text-lg sm:text-2xl font-display font-black text-white"><span id="capturedCount">0</span> <span class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase">Hexes</span></p>
 </div>
 <div class="text-right">
-<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Energy</p>
-<p class="text-2xl font-display font-black text-white" id="energyValue">100</p>
+<p class="text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Energy</p>
+<p class="text-lg sm:text-2xl font-display font-black text-white" id="energyValue">100</p>
 </div>
 </div>
 </div>
-<div class="glass-panel p-5 rounded-[2rem] flex items-center gap-4 border-white/5">
-<div class="w-14 h-14 rounded-2xl bg-accent-teal/10 flex items-center justify-center">
-<span class="material-symbols-outlined text-accent-teal text-3xl">emoji_events</span>
+<div class="glass-panel p-3 sm:p-5 rounded-xl sm:rounded-[2rem] flex items-center gap-2 sm:gap-4 border-white/5">
+<div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-accent-teal/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-teal text-xl sm:text-3xl">emoji_events</span>
 </div>
-<div>
-<p class="text-sm font-black text-white uppercase tracking-tight" id="statusMessage">GPS Active</p>
-<div class="flex items-center gap-2 mt-1">
-<div class="h-1.5 w-24 bg-zinc-800 rounded-full overflow-hidden">
-<div class="h-full bg-accent-teal" id="progressBar" style="width: 0%"></div>
-</div>
-<p class="text-[10px] font-bold text-zinc-400" id="progressText">0%</p>
-</div>
-</div>
-</div>
-<div class="glass-panel p-5 rounded-[2rem] flex items-center gap-4 border-white/5 mt-4">
-<div>
-<p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Distance</p>
-<p class="text-2xl font-display font-black text-white"><span id="distanceValue">0</span> <span class="text-xs font-bold text-zinc-500 uppercase">km</span></p>
+<div class="flex-1">
+<p class="text-xs sm:text-sm font-black text-white uppercase tracking-tight truncate" id="statusMessage">GPS Active</p>
 </div>
 </div>
 </div>
 </div>
 
-<button id="runToggle" class="absolute left-8 bottom-8 z-[1000] w-80 max-w-[calc(100vw-16rem)] p-6 rounded-3xl flex items-center justify-center gap-4 border-2 border-accent-teal bg-accent-teal text-black font-display font-black text-xl uppercase tracking-tight active:scale-95 transition-all shadow-[0_20px_50px_rgba(74,222,189,0.3)] hidden md:flex" onclick="toggleRun()">
-<span class="material-symbols-outlined text-4xl font-black" id="runIcon">play_circle</span>
-<span id="runText">Start Run</span>
+<div class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-[1000] flex flex-col gap-2 sm:gap-4">
+<div class="bg-black/40 border border-white/10 p-1 sm:p-2 rounded-xl sm:rounded-2xl flex flex-col gap-1 sm:gap-2">
+<button class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomIn();">
+<span class="material-symbols-outlined text-xl sm:text-2xl">add</span>
 </button>
-
-<div class="absolute right-8 top-1/2 -translate-y-1/2 z-[1000] flex flex-col gap-4">
-<div class="bg-black/40 border border-white/10 p-2 rounded-2xl flex flex-col gap-2">
-<button class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomIn();">
-<span class="material-symbols-outlined">add</span>
-</button>
-<div class="h-px bg-white/10 mx-2"></div>
-<button class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomOut();">
-<span class="material-symbols-outlined">remove</span>
+<div class="h-px bg-white/10 mx-1 sm:mx-2"></div>
+<button class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-white/10 transition-all text-white" onclick="map.zoomOut();">
+<span class="material-symbols-outlined text-xl sm:text-2xl">remove</span>
 </button>
 </div>
-<button class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-accent-teal shadow-xl" onclick="centerMap()">
-<span class="material-symbols-outlined text-3xl">my_location</span>
+<button class="w-10 h-10 sm:w-16 sm:h-16 bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-accent-teal shadow-xl" onclick="centerMap()">
+<span class="material-symbols-outlined text-xl sm:text-3xl">my_location</span>
 </button>
-<a href="/items" class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-white shadow-xl">
-<span class="material-symbols-outlined text-3xl">inventory_2</span>
-</a>
-<button class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-yellow-400 shadow-xl" onclick="setHomeBase()" title="Set Home Base">
-<span class="material-symbols-outlined text-3xl">home</span>
+<button class="w-10 h-10 sm:w-16 sm:h-16 bg-black/40 border border-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-yellow-400 shadow-xl" onclick="setHomeBase()" title="Set Home Base">
+<span class="material-symbols-outlined text-xl sm:text-3xl">home</span>
 </button>
-<a href="/squad" class="w-16 h-16 bg-black/40 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all text-purple-400 shadow-xl" title="Squad">
-<span class="material-symbols-outlined text-3xl">group</span>
-</a>
 </div>
 
-<div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-8 text-center md:hidden">
-<button id="runToggleMobile" class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-4 transition-all active:scale-95" onclick="toggleRun()">
-<span class="material-symbols-outlined text-3xl font-black" id="runIconMobile">play_circle</span>
-<span class="tracking-tight text-xl uppercase" id="runTextMobile">Start Run</span>
+<div class="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-4 sm:px-8 text-center">
+<button id="runToggleMobile" class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-4 sm:py-6 rounded-2xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-3 sm:gap-4 transition-all active:scale-95" onclick="toggleRun()">
+<span class="material-symbols-outlined text-2xl sm:text-3xl font-black" id="runIconMobile">play_circle</span>
+<span class="tracking-tight text-lg sm:text-xl uppercase" id="runTextMobile">Start Run</span>
 </button>
 </div>
 </div>
@@ -320,12 +270,8 @@ async function toggleRun() {
     runDistance = 0;
     runPath.setLatLngs([]);
     document.getElementById('recordingIndicator').style.display = 'flex';
-    document.getElementById('runIcon').textContent = 'stop_circle';
-    document.getElementById('runText').textContent = 'Stop Run';
-    if (document.getElementById('runIconMobile')) {
-      document.getElementById('runIconMobile').textContent = 'stop_circle';
-      document.getElementById('runTextMobile').textContent = 'Stop Run';
-    }
+    document.getElementById('runIconMobile').textContent = 'stop_circle';
+    document.getElementById('runTextMobile').textContent = 'Stop Run';
     durationInterval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - runStartTime) / 1000);
       const mins = Math.floor(elapsed / 60);
@@ -342,12 +288,8 @@ async function toggleRun() {
     const data = await res.json();
     runActive = false;
     document.getElementById('recordingIndicator').style.display = 'none';
-    document.getElementById('runIcon').textContent = 'play_circle';
-    document.getElementById('runText').textContent = 'Start Run';
-    if (document.getElementById('runIconMobile')) {
-      document.getElementById('runIconMobile').textContent = 'play_circle';
-      document.getElementById('runTextMobile').textContent = 'Start Run';
-    }
+    document.getElementById('runIconMobile').textContent = 'play_circle';
+    document.getElementById('runTextMobile').textContent = 'Start Run';
     alert(`Run Complete!\nDistance: ${data.distance.toFixed(2)}km`);
   }
 }
@@ -362,7 +304,24 @@ async function loadUserData() {
     document.getElementById('userLevel').textContent = `Level ${Math.floor(data.exp / 100) + 1} ${data.player_class}`;
     document.getElementById('capturedCount').textContent = data.hexes;
     document.getElementById('energyValue').textContent = data.energy;
-    document.getElementById('distanceValue').textContent = data.distance.toFixed(1);
+    
+    // Show home base if set
+    const userResponse = await fetch(`/api/stats/${userId}`);
+    const userData = await userResponse.json();
+    
+    if (userData.home_lat && userData.home_lng) {
+      if (homeMarker) map.removeLayer(homeMarker);
+      
+      const homeIcon = L.divIcon({
+        className: 'home-marker',
+        html: `<div style="position:relative;width:60px;height:60px;"><div style="position:absolute;width:60px;height:60px;border-radius:50%;background:rgba(255,215,0,0.2);border:3px solid #FFD700;"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:30px;">🏠</div></div>`,
+        iconSize: [60, 60],
+        iconAnchor: [30, 30]
+      });
+      
+      homeMarker = L.marker([userData.home_lat, userData.home_lng], { icon: homeIcon, zIndexOffset: 500 }).addTo(map);
+      homeMarker.bindPopup('<b>🏠 Home Base</b><br>+50% XP Bonus<br>Free Energy');
+    }
   } catch (error) {
     console.error('Failed to load user data:', error);
   }
@@ -553,6 +512,7 @@ function stopTracking() {
 }
 
 let playerMarker = null;
+let homeMarker = null;
 
 startTracking((position) => {
   if (!lastPosition) {

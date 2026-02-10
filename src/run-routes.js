@@ -5,6 +5,9 @@ const router = express.Router();
 router.post('/run/start', async (req, res) => {
   try {
     const { userId } = req.body;
+    const [[user]] = await pool.query('SELECT id FROM users WHERE id = ?', [userId]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
     const [result] = await pool.query(
       'INSERT INTO runs (user_id, started_at) VALUES (?, NOW())',
       [userId]

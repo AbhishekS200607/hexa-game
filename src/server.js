@@ -11,6 +11,7 @@ const settingsRoutes = require('./settings-routes');
 const runRoutes = require('./run-routes');
 const itemRoutes = require('./item-routes');
 const squadRoutes = require('./squad-routes');
+const leaderboardRoutes = require('./leaderboard-routes');
 
 const app = express();
 const server = http.createServer(app);
@@ -58,6 +59,7 @@ app.use('/api', settingsRoutes);
 app.use('/api', runRoutes);
 app.use('/api', itemRoutes);
 app.use('/api', squadRoutes);
+app.use('/api', leaderboardRoutes);
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/login.html'));
