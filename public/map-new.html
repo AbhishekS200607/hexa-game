@@ -104,53 +104,51 @@ tailwind.config = {
 </div>
 </div>
 
-<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-40 sm:w-80 max-w-[calc(100vw-10rem)]" id="statsPanel">
-<div class="glass-panel p-3 sm:p-8 rounded-2xl sm:rounded-[2.5rem] shadow-2xl border-white/5">
-<div class="flex items-center justify-between mb-4 sm:mb-8" id="recordingIndicator" style="display:none;">
-<h3 class="font-display font-black text-sm sm:text-2xl tracking-tight uppercase">Recording</h3>
-<span class="flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-red-500 animate-pulse"></span>
+<div class="absolute left-2 sm:left-8 bottom-32 sm:top-1/2 sm:-translate-y-1/2 z-[1000] w-32 sm:w-80" id="statsPanel">
+<button class="sm:hidden w-8 h-8 bg-black/60 rounded-lg mb-2 flex items-center justify-center" onclick="document.getElementById('statsCards').classList.toggle('hidden')">
+<span class="material-symbols-outlined text-white text-sm">expand_less</span>
+</button>
+<div class="glass-panel p-2 sm:p-8 rounded-xl sm:rounded-[2.5rem] shadow-2xl border-white/5">
+<div class="flex items-center justify-between mb-2 sm:mb-8" id="recordingIndicator" style="display:none;">
+<h3 class="font-display font-black text-xs sm:text-2xl tracking-tight uppercase">Rec</h3>
+<span class="flex h-1.5 w-1.5 sm:h-2.5 sm:w-2.5 rounded-full bg-red-500 animate-pulse"></span>
 </div>
-<div class="space-y-2 sm:space-y-4" id="statsCards">
-<div class="bg-accent-teal p-3 sm:p-6 rounded-2xl sm:rounded-3xl text-black relative overflow-hidden">
-<div class="relative z-10">
-<div class="flex items-center gap-1 sm:gap-2 mb-1">
-<span class="material-symbols-outlined text-black/60 text-sm sm:text-lg">speed</span>
-<span class="text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Speed</span>
+<div class="space-y-1 sm:space-y-4" id="statsCards">
+<div class="bg-accent-teal p-2 sm:p-6 rounded-lg sm:rounded-3xl text-black">
+<div class="flex items-center gap-0.5 sm:gap-2 mb-0.5">
+<span class="material-symbols-outlined text-black/60 text-xs sm:text-lg">speed</span>
+<span class="text-[7px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Speed</span>
 </div>
-<div class="flex items-baseline gap-1">
-<span class="text-2xl sm:text-4xl font-display font-black" id="speedValue">0</span>
-<span class="text-xs sm:text-sm font-bold opacity-60">km/h</span>
-</div>
-</div>
-</div>
-<div class="bg-accent-orange p-3 sm:p-6 rounded-2xl sm:rounded-3xl text-black relative overflow-hidden">
-<div class="relative z-10">
-<div class="flex items-center gap-1 sm:gap-2 mb-1">
-<span class="material-symbols-outlined text-black/60 text-sm sm:text-lg">grid_view</span>
-<span class="text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Hex</span>
-</div>
-<p class="text-xs sm:text-lg font-mono font-bold truncate" id="currentHex">-</p>
+<div class="flex items-baseline gap-0.5">
+<span class="text-lg sm:text-4xl font-display font-black" id="speedValue">0</span>
+<span class="text-[8px] sm:text-sm font-bold opacity-60">km/h</span>
 </div>
 </div>
+<div class="bg-accent-orange p-2 sm:p-6 rounded-lg sm:rounded-3xl text-black">
+<div class="flex items-center gap-0.5 sm:gap-2 mb-0.5">
+<span class="material-symbols-outlined text-black/60 text-xs sm:text-lg">grid_view</span>
+<span class="text-[7px] sm:text-[11px] font-black uppercase tracking-widest text-black/60">Hex</span>
 </div>
-<div class="mt-4 sm:mt-8 pt-3 sm:pt-6 border-t border-white/10 flex justify-between">
+<p class="text-[8px] sm:text-lg font-mono font-bold truncate" id="currentHex">-</p>
+</div>
+</div>
+<div class="mt-2 sm:mt-8 pt-2 sm:pt-6 border-t border-white/10 flex justify-between text-[8px] sm:text-base">
 <div>
-<p class="text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Captured</p>
-<p class="text-lg sm:text-2xl font-display font-black text-white"><span id="capturedCount">0</span> <span class="text-[10px] sm:text-xs font-bold text-zinc-500 uppercase">Hexes</span></p>
+<p class="text-[7px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Captured</p>
+<p class="text-sm sm:text-2xl font-display font-black text-white"><span id="capturedCount">0</span></p>
 </div>
 <div class="text-right">
-<p class="text-[8px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Energy</p>
-<p class="text-lg sm:text-2xl font-display font-black text-white" id="energyValue">100</p>
+<p class="text-[7px] sm:text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-0.5">Energy</p>
+<p class="text-sm sm:text-2xl font-display font-black text-white" id="energyValue">100</p>
 </div>
 </div>
 </div>
-<div class="glass-panel p-3 sm:p-5 rounded-xl sm:rounded-[2rem] flex items-center gap-2 sm:gap-4 border-white/5">
-<div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-accent-teal/10 flex items-center justify-center">
-<span class="material-symbols-outlined text-accent-teal text-xl sm:text-3xl">emoji_events</span>
+<div class="glass-panel p-2 sm:p-5 rounded-lg sm:rounded-[2rem] flex items-center gap-1 sm:gap-4 border-white/5 mt-1 sm:mt-4">
+<div class="w-8 h-8 sm:w-14 sm:h-14 rounded-lg sm:rounded-2xl bg-accent-teal/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-accent-teal text-sm sm:text-3xl">emoji_events</span>
 </div>
 <div class="flex-1">
-<p class="text-xs sm:text-sm font-black text-white uppercase tracking-tight truncate" id="statusMessage">GPS Active</p>
-</div>
+<p class="text-[8px] sm:text-sm font-black text-white uppercase tracking-tight truncate" id="statusMessage">GPS Active</p>
 </div>
 </div>
 </div>

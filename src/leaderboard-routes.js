@@ -3,8 +3,10 @@ const pool = require('./database');
 const router = express.Router();
 
 router.get('/leaderboard/global', async (req, res) => {
+  let connection;
   try {
-    const [leaders] = await pool.query(`
+    connection = await pool.getConnection();
+    const [leaders] = await connection.query(`
       SELECT 
         u.id, 
         u.username, 
@@ -22,12 +24,16 @@ router.get('/leaderboard/global', async (req, res) => {
   } catch (error) {
     console.error('Leaderboard error:', error);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 
 router.get('/leaderboard/local/:region', async (req, res) => {
+  let connection;
   try {
-    const [leaders] = await pool.query(`
+    connection = await pool.getConnection();
+    const [leaders] = await connection.query(`
       SELECT 
         u.id, 
         u.username, 
@@ -45,6 +51,8 @@ router.get('/leaderboard/local/:region', async (req, res) => {
   } catch (error) {
     console.error('Leaderboard error:', error);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 
