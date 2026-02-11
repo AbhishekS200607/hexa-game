@@ -104,7 +104,7 @@ tailwind.config = {
 </div>
 </div>
 
-<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-48 sm:w-80 max-w-[calc(100vw-8rem)]" id="statsPanel">
+<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-40 sm:w-80 max-w-[calc(100vw-10rem)] hidden sm:block" id="statsPanel">
 <div class="glass-panel p-3 sm:p-8 rounded-2xl sm:rounded-[2.5rem] shadow-2xl border-white/5">
 <div class="flex items-center justify-between mb-4 sm:mb-8" id="recordingIndicator" style="display:none;">
 <h3 class="font-display font-black text-sm sm:text-2xl tracking-tight uppercase">Recording</h3>
@@ -173,10 +173,10 @@ tailwind.config = {
 </button>
 </div>
 
-<div class="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-md px-4 sm:px-8 text-center">
-<button id="runToggleMobile" class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-4 sm:py-6 rounded-2xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-3 sm:gap-4 transition-all active:scale-95" onclick="toggleRun()">
-<span class="material-symbols-outlined text-2xl sm:text-3xl font-black" id="runIconMobile">play_circle</span>
-<span class="tracking-tight text-lg sm:text-xl uppercase" id="runTextMobile">Start Run</span>
+<div class="absolute bottom-20 sm:bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-[calc(100%-2rem)] sm:w-full max-w-md px-2 sm:px-8 text-center">
+<button id="runToggleMobile" class="w-full bg-accent-teal hover:bg-white text-black font-display font-black py-3 sm:py-6 rounded-xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(74,222,189,0.3)] flex items-center justify-center gap-2 sm:gap-4 transition-all active:scale-95" onclick="toggleRun()">
+<span class="material-symbols-outlined text-xl sm:text-3xl font-black" id="runIconMobile">play_circle</span>
+<span class="tracking-tight text-base sm:text-xl uppercase" id="runTextMobile">Start Run</span>
 </button>
 </div>
 </div>
