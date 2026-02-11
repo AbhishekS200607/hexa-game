@@ -185,6 +185,7 @@ let currentH3Index = null;
 let map = null;
 let lastPosition = null;
 let lastMoveTime = Date.now();
+let lastCaptureTime = 0;
 let currentHexLayer = null;
 let visitedHexesLayer = null;
 let ws = null;
@@ -195,6 +196,8 @@ let runStartTime = null;
 let runDistance = 0;
 let durationInterval = null;
 let playerTrail = null;
+
+const CAPTURE_COOLDOWN = 10000; // 10 seconds between captures
 
 const FACTION_COLORS = {
   NEON_SYNDICATE: '#4ADEBD',
@@ -469,6 +472,16 @@ async function captureHex(lat, lng, h3Index, speed) {
     runPath.addLatLng([lat, lng]);
   }
   
+  // Rate limit: only capture every 10 seconds
+  const now = Date.now();
+  if (now - lastCaptureTime < CAPTURE_COOLDOWN) {
+    const remaining = Math.ceil((CAPTURE_COOLDOWN - (now - lastCaptureTime)) / 1000);
+    document.getElementById('statusMessage').textContent = `Cooldown: ${remaining}s`;
+    return;
+  }
+  
+  lastCaptureTime = now;
+  
   // Always capture hexes regardless of run status
   try {
     const response = await fetch('/api/move', {
@@ -490,7 +503,6 @@ async function captureHex(lat, lng, h3Index, speed) {
       document.getElementById('statusMessage').textContent = data.message;
       document.getElementById('capturedCount').textContent = data.stats.hexes;
       document.getElementById('energyValue').textContent = data.stats.energy;
-      document.getElementById('distanceValue').textContent = data.stats.distance.toFixed(1);
       loadVisitedHexes();
     }
   } catch (error) {
