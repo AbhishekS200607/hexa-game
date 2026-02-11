@@ -16,27 +16,31 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
     const [existing] = await pool.query(
       'SELECT id FROM users WHERE username = ? OR email = ?',
-      [username, email]
+      [trimmedUsername, trimmedEmail]
     );
 
     if (existing.length > 0) {
       return res.status(400).json({ error: 'Username or email already exists' });
     }
 
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = hashPassword(trimmedPassword);
     const selectedFaction = faction || 'NEON_SYNDICATE';
 
     const [result] = await pool.query(
       'INSERT INTO users (username, email, password, faction, energy) VALUES (?, ?, ?, ?, 100)',
-      [username, email, hashedPassword, selectedFaction]
+      [trimmedUsername, trimmedEmail, hashedPassword, selectedFaction]
     );
 
     res.json({ 
       success: true, 
       userId: result.insertId,
-      username,
+      username: trimmedUsername,
       faction: selectedFaction
     });
   } catch (error) {
@@ -53,17 +57,23 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Missing credentials' });
     }
 
-    const hashedPassword = hashPassword(password);
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    const hashedPassword = hashPassword(trimmedPassword);
+
+    console.log('Login attempt:', { username: trimmedUsername });
 
     const [users] = await pool.query(
       'SELECT id, username, faction FROM users WHERE username = ? AND password = ?',
-      [username, hashedPassword]
+      [trimmedUsername, hashedPassword]
     );
 
     if (users.length === 0) {
+      console.log('Login failed for:', trimmedUsername);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    console.log('Login success:', users[0].username);
     res.json({ 
       success: true, 
       userId: users[0].id,
