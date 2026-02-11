@@ -196,15 +196,17 @@ router.post('/move', moveLimit, async (req, res) => {
 });
 
 router.get('/stats/:userId', async (req, res) => {
+  let connection;
   try {
     const { userId } = req.params;
+    connection = await pool.getConnection();
 
-    const [userData] = await pool.query(
-      'SELECT username, email, total_distance, exp_points, faction, energy, activity_mode, player_class FROM users WHERE id = ?',
+    const [userData] = await connection.query(
+      'SELECT username, email, total_distance, exp_points, faction, energy, activity_mode, player_class, home_lat, home_lng FROM users WHERE id = ?',
       [userId]
     );
 
-    const [hexCount] = await pool.query(
+    const [hexCount] = await connection.query(
       'SELECT COUNT(*) as count FROM hexagons WHERE owner_id = ?',
       [userId]
     );
@@ -223,20 +225,26 @@ router.get('/stats/:userId', async (req, res) => {
       faction: userData[0].faction,
       activityMode: userData[0].activity_mode,
       player_class: userData[0].player_class,
+      home_lat: userData[0].home_lat,
+      home_lng: userData[0].home_lng,
       factionColor: FACTION_COLORS[userData[0].faction]
     });
 
   } catch (error) {
     console.error('Stats error:', error);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 
 router.get('/map/:userId', async (req, res) => {
+  let connection;
   try {
     const { userId } = req.params;
+    connection = await pool.getConnection();
 
-    const [allHexes] = await pool.query(
+    const [allHexes] = await connection.query(
       'SELECT h.h3_index, h.faction, h.defense_level, h.owner_id, u.username as owner_name FROM hexagons h LEFT JOIN users u ON h.owner_id = u.id'
     );
 
@@ -256,6 +264,8 @@ router.get('/map/:userId', async (req, res) => {
   } catch (error) {
     console.error('Map error:', error);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    if (connection) connection.release();
   }
 });
 

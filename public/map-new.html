@@ -104,7 +104,7 @@ tailwind.config = {
 </div>
 </div>
 
-<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-40 sm:w-80 max-w-[calc(100vw-10rem)] hidden sm:block" id="statsPanel">
+<div class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-[1000] space-y-2 sm:space-y-4 w-40 sm:w-80 max-w-[calc(100vw-10rem)]" id="statsPanel">
 <div class="glass-panel p-3 sm:p-8 rounded-2xl sm:rounded-[2.5rem] shadow-2xl border-white/5">
 <div class="flex items-center justify-between mb-4 sm:mb-8" id="recordingIndicator" style="display:none;">
 <h3 class="font-display font-black text-sm sm:text-2xl tracking-tight uppercase">Recording</h3>
@@ -255,6 +255,9 @@ visitedHexesLayer = L.layerGroup().addTo(map);
 runPath = L.polyline([], { color: '#4ADEBD', weight: 4, opacity: 0.8 }).addTo(map);
 playerTrail = L.polyline([], { color: '#4ADEBD', weight: 3, opacity: 0.6, dashArray: '5, 10' }).addTo(map);
 
+let playerMarker = null;
+let homeMarker = null;
+
 loadVisitedHexes();
 loadUserData();
 
@@ -307,11 +310,7 @@ async function loadUserData() {
     document.getElementById('capturedCount').textContent = data.hexes;
     document.getElementById('energyValue').textContent = data.energy;
     
-    // Show home base if set
-    const userResponse = await fetch(`/api/stats/${userId}`);
-    const userData = await userResponse.json();
-    
-    if (userData.home_lat && userData.home_lng) {
+    if (data.home_lat && data.home_lng) {
       if (homeMarker) map.removeLayer(homeMarker);
       
       const homeIcon = L.divIcon({
@@ -321,7 +320,7 @@ async function loadUserData() {
         iconAnchor: [30, 30]
       });
       
-      homeMarker = L.marker([userData.home_lat, userData.home_lng], { icon: homeIcon, zIndexOffset: 500 }).addTo(map);
+      homeMarker = L.marker([data.home_lat, data.home_lng], { icon: homeIcon, zIndexOffset: 500 }).addTo(map);
       homeMarker.bindPopup('<b>🏠 Home Base</b><br>+50% XP Bonus<br>Free Energy');
     }
   } catch (error) {
@@ -354,6 +353,7 @@ async function setHomeBase() {
     const data = await res.json();
     if (data.success) {
       alert('🏠 Home base set! Capture hexes here for bonus XP!');
+      loadUserData();
     }
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
@@ -514,9 +514,6 @@ function stopTracking() {
     window.location.href = '/';
   }
 }
-
-let playerMarker = null;
-let homeMarker = null;
 
 startTracking((position) => {
   if (!lastPosition) {

@@ -10,6 +10,9 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  connectTimeout: 60000,
   ssl: process.env.DB_HOST !== 'localhost' ? { rejectUnauthorized: false } : undefined
 });
 
