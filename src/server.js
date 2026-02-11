@@ -59,7 +59,7 @@ app.use('/api', settingsRoutes);
 app.use('/api', runRoutes);
 app.use('/api', itemRoutes);
 app.use('/api', squadRoutes);
-app.use('/api', leaderboardRoutes);
+app.use('/', leaderboardRoutes);
 
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/login.html'));
