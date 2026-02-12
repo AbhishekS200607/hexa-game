@@ -143,7 +143,16 @@ router.post('/move', moveLimit, async (req, res) => {
       }
 
       const distanceGain = activityMode === 'CAVALRY' ? 0.02 : 0.01;
-      userEnergy = Math.min(userEnergy + 5, 100);
+      
+      // Energy logic: restore at home, gain small amount on friendly territory, no gain on enemy capture
+      if (isNearHome) {
+        userEnergy = Math.min(userEnergy + 10, 100); // +10 at home base
+      } else if (existing.length > 0 && existing[0].owner_id === userId) {
+        userEnergy = Math.min(userEnergy + 3, 100); // +3 on own territory
+      } else if (!conquered) {
+        userEnergy = Math.min(userEnergy + 2, 100); // +2 on neutral/failed capture
+      }
+      // No energy gain when capturing enemy territory (already deducted)
 
       await connection.query(
         'UPDATE users SET total_distance = total_distance + ?, exp_points = exp_points + ?, energy = ? WHERE id = ?',
