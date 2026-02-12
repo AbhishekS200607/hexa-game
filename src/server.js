@@ -12,6 +12,7 @@ const runRoutes = require('./run-routes');
 const itemRoutes = require('./item-routes');
 const squadRoutes = require('./squad-routes');
 const leaderboardRoutes = require('./leaderboard-routes');
+const energySystem = require('./energy-system');
 
 const app = express();
 const server = http.createServer(app);

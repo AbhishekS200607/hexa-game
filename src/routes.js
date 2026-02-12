@@ -125,8 +125,23 @@ router.post('/move', moveLimit, async (req, res) => {
           userEnergy -= energyCost;
           conquered = true;
           message = `Enemy hex captured! (-${energyCost} energy)`;
+          
+          // Notify defender and give them +20 energy for losing territory
+          if (existing[0].owner_id) {
+            await connection.query(
+              'UPDATE users SET energy = LEAST(energy + 20, 100) WHERE id = ?',
+              [existing[0].owner_id]
+            );
+          }
         } else {
           message = `Not enough energy (need ${energyCost})`;
+          // Failed capture: defender gets +20 energy bonus
+          if (existing[0].owner_id) {
+            await connection.query(
+              'UPDATE users SET energy = LEAST(energy + 20, 100) WHERE id = ?',
+              [existing[0].owner_id]
+            );
+          }
         }
       }
 
@@ -147,17 +162,18 @@ router.post('/move', moveLimit, async (req, res) => {
       // Energy restoration while walking (passive regeneration)
       const baseEnergyGain = 1; // +1 energy per hex visited
       
-      // Energy logic: restore at home, gain while walking, no gain on enemy capture
-      if (isNearHome) {
+      // Energy logic: restore at home, gain while walking, capture bonus
+      if (conquered && existing.length > 0) {
+        // Successful enemy capture: +20 bonus
+        userEnergy = Math.min(userEnergy + 20 + baseEnergyGain, 100);
+        message += ' +20 capture bonus!';
+      } else if (isNearHome) {
         userEnergy = Math.min(userEnergy + 10, 100); // +10 at home base
       } else if (existing.length > 0 && existing[0].owner_id === userId) {
-        userEnergy = Math.min(userEnergy + 3 + baseEnergyGain, 100); // +4 on own territory (3 + 1 walking)
-      } else if (conquered && existing.length > 0) {
-        // Enemy captured: energy already deducted, add walking bonus
-        userEnergy = Math.min(userEnergy + baseEnergyGain, 100); // +1 for walking
+        userEnergy = Math.min(userEnergy + 3 + baseEnergyGain, 100); // +4 on own territory
       } else {
         // Neutral hex or failed capture: walking bonus
-        userEnergy = Math.min(userEnergy + 2 + baseEnergyGain, 100); // +3 total (2 + 1 walking)
+        userEnergy = Math.min(userEnergy + 2 + baseEnergyGain, 100); // +3 total
       }
 
       await connection.query(
