@@ -64,21 +64,33 @@
 
 ## 📊 Energy System Rules
 
+### Attacker Energy:
+| Defense Level | Attack Cost | Capture Bonus | Net Change |
+|--------------|-------------|---------------|------------|
+| **Def 1** | -10 | +30 | **+20** ✅ |
+| **Def 2** | -20 | +50 | **+30** ✅ |
+| **Def 3** | -30 | +70 | **+40** ✅ |
+| **Def 4** | -40 | +90 | **+50** ✅ |
+| **Def 5** | -50 | +150 | **+100** ✅ |
+
+### Defender Energy:
+| Defense Level | Protection Cost (per attack) |
+|--------------|-----------------------------|
+| **Def 1** | -5 energy |
+| **Def 2** | -10 energy |
+| **Def 3** | -15 energy |
+| **Def 4** | -20 energy |
+| **Def 5** | -25 energy |
+
+### Other Energy Sources:
 | Event | Energy Change |
-|-------|--------------|
+|-------|---------------|
 | Daily Reset (<25) | Set to 100 |
 | Passive (10 min) | +10 per owned hex |
 | Walking | +1 per hex |
 | Home Base | +10 |
 | Own Territory | +4 |
 | Neutral Hex | +3 |
-| Enemy Capture (Def 1) | -10 + 30 bonus = +20 net |
-| Enemy Capture (Def 2) | -20 + 30 bonus = +10 net |
-| Enemy Capture (Def 3) | -30 + 30 bonus = 0 net |
-| Enemy Capture (Def 4) | -40 + 30 bonus = -10 net |
-| Enemy Capture (Def 5) | -50 + 30 bonus = -20 net |
-| Defender (attacked) | +20 |
-| Defender (defended) | +20 |
 
 ## 🎮 Game Balance
 - Energy cap: 100

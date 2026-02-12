@@ -115,8 +115,13 @@ router.post('/move', moveLimit, async (req, res) => {
           message = 'Max defense reached';
         }
       } else {
-        const baseCost = existing[0].defense_level * 10;
+        const defenseLevel = existing[0].defense_level;
+        const baseCost = defenseLevel * 10;
         const energyCost = playerClass === 'TANK' ? Math.floor(baseCost * classBonus.TANK.energy) : baseCost;
+        
+        // Defender loses energy while protecting (half of attack cost)
+        const defenderEnergyCost = Math.floor(energyCost / 2);
+        
         if (userEnergy >= energyCost) {
           await connection.query(
             'UPDATE hexagons SET owner_id = ?, faction = ?, defense_level = 1, captured_at = NOW() WHERE h3_index = ?',
@@ -126,20 +131,20 @@ router.post('/move', moveLimit, async (req, res) => {
           conquered = true;
           message = `Enemy hex captured! (-${energyCost} energy)`;
           
-          // Notify defender and give them +20 energy for losing territory
+          // Defender loses energy for failed defense
           if (existing[0].owner_id) {
             await connection.query(
-              'UPDATE users SET energy = LEAST(energy + 20, 100) WHERE id = ?',
-              [existing[0].owner_id]
+              'UPDATE users SET energy = GREATEST(energy - ?, 0) WHERE id = ?',
+              [defenderEnergyCost, existing[0].owner_id]
             );
           }
         } else {
           message = `Not enough energy (need ${energyCost})`;
-          // Failed capture: defender gets +20 energy bonus
+          // Failed capture: attacker loses attempt energy, defender loses protection energy
           if (existing[0].owner_id) {
             await connection.query(
-              'UPDATE users SET energy = LEAST(energy + 20, 100) WHERE id = ?',
-              [existing[0].owner_id]
+              'UPDATE users SET energy = GREATEST(energy - ?, 0) WHERE id = ?',
+              [defenderEnergyCost, existing[0].owner_id]
             );
           }
         }
@@ -162,11 +167,21 @@ router.post('/move', moveLimit, async (req, res) => {
       // Energy restoration while walking (passive regeneration)
       const baseEnergyGain = 1; // +1 energy per hex visited
       
+      // Defense-level-based capture bonuses
+      const captureBonuses = {
+        1: 30,
+        2: 50,
+        3: 70,
+        4: 90,
+        5: 150
+      };
+      
       // Energy logic: restore at home, gain while walking, capture bonus
       if (conquered && existing.length > 0) {
-        // Successful enemy capture: +30 bonus (increased from 20)
-        userEnergy = Math.min(userEnergy + 30 + baseEnergyGain, 100);
-        message += ' +30 capture bonus!';
+        const defenseLevel = existing[0].defense_level;
+        const captureBonus = captureBonuses[defenseLevel] || 30;
+        userEnergy = Math.min(userEnergy + captureBonus + baseEnergyGain, 100);
+        message += ` +${captureBonus} capture bonus!`;
       } else if (isNearHome) {
         userEnergy = Math.min(userEnergy + 10, 100); // +10 at home base
       } else if (existing.length > 0 && existing[0].owner_id === userId) {
