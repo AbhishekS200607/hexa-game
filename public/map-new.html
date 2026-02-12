@@ -77,6 +77,30 @@ tailwind.config = {
 }
 #map { position: absolute; inset: 0; z-index: 1; }
 .leaflet-tile-pane { filter: none; }
+.toast {
+  position: fixed;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10000;
+  animation: slideUp 0.3s ease;
+  max-width: 90%;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.toast.success { border-color: #4ADEBD; color: #4ADEBD; }
+.toast.error { border-color: #FF6B35; color: #FF6B35; }
+.toast.warning { border-color: #FFD700; color: #FFD700; }
+@keyframes slideUp {
+  from { bottom: 100px; opacity: 0; }
+  to { bottom: 140px; opacity: 1; }
+}
 </style>
 </head>
 <body class="bg-background-dark text-white font-sans overflow-hidden h-screen">
@@ -174,6 +198,8 @@ tailwind.config = {
 <script src="/js/gps.js"></script>
 <script>
 const userId = localStorage.getItem('userId') || 1;
+const offlineQueue = [];
+let isOnline = navigator.onLine;
 let currentH3Index = null;
 let map = null;
 let lastPosition = null;
@@ -191,6 +217,85 @@ let durationInterval = null;
 let playerTrail = null;
 
 const CAPTURE_COOLDOWN = 10000; // 10 seconds between captures
+
+// Toast notification system
+function showToast(message, type = 'info', duration = 3000) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.remove(), duration);
+}
+
+// Input validation
+function validateCoordinates(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+  if (lat < -90 || lat > 90) return false;
+  if (lng < -180 || lng > 180) return false;
+  if (isNaN(lat) || isNaN(lng)) return false;
+  return true;
+}
+
+// Offline queue management
+function queueCapture(lat, lng, h3Index, speed) {
+  offlineQueue.push({ lat, lng, h3Index, userId, speed, timestamp: Date.now() });
+  localStorage.setItem('captureQueue', JSON.stringify(offlineQueue));
+  showToast('📡 Offline - Capture queued', 'warning');
+}
+
+async function processOfflineQueue() {
+  if (!isOnline || offlineQueue.length === 0) return;
+  
+  const queued = [...offlineQueue];
+  offlineQueue.length = 0;
+  
+  for (const capture of queued) {
+    try {
+      await fetch('/api/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(capture)
+      });
+    } catch (e) {
+      offlineQueue.push(capture);
+    }
+  }
+  
+  localStorage.setItem('captureQueue', JSON.stringify(offlineQueue));
+  if (offlineQueue.length === 0) {
+    showToast('✅ Offline captures synced', 'success');
+  }
+}
+
+window.addEventListener('online', () => {
+  isOnline = true;
+  showToast('🌐 Back online', 'success');
+  processOfflineQueue();
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  showToast('📡 Offline mode', 'warning');
+});
+
+// Load queued captures on startup
+const savedQueue = localStorage.getItem('captureQueue');
+if (savedQueue) {
+  offlineQueue.push(...JSON.parse(savedQueue));
+  if (isOnline) processOfflineQueue();
+}
+
+// Battery warning on first visit
+if (!localStorage.getItem('batteryWarningShown')) {
+  setTimeout(() => {
+    showToast('⚡ GPS tracking uses battery. Keep charger handy!', 'warning', 5000);
+    localStorage.setItem('batteryWarningShown', 'true');
+  }, 2000);
+}
 
 const FACTION_COLORS = {
   NEON_SYNDICATE: '#4ADEBD',
@@ -286,7 +391,7 @@ async function toggleRun() {
     document.getElementById('recordingIndicator').style.display = 'none';
     document.getElementById('runIconMobile').textContent = 'play_circle';
     document.getElementById('runTextMobile').textContent = 'Start Run';
-    alert(`Run Complete!\nDistance: ${data.distance.toFixed(2)}km`);
+    showToast(`🏁 Run Complete! ${data.distance.toFixed(2)}km`, 'success', 5000);
   }
 }
 
@@ -343,16 +448,16 @@ async function setHomeBase() {
     });
     const data = await res.json();
     if (data.success) {
-      alert('🏠 Home base set! Capture hexes here for bonus XP!');
+      showToast('🏠 Home base set! +50% XP bonus here', 'success', 4000);
       loadUserData();
     }
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
   }, (error) => {
     if (error.code === error.TIMEOUT) {
-      alert('GPS timeout. Try again or move to open area.');
+      showToast('⏱️ GPS timeout. Move to open area and retry.', 'error', 4000);
     } else {
-      alert('GPS error: ' + error.message);
+      showToast('❌ GPS error: ' + error.message, 'error', 4000);
     }
     btn.disabled = false;
     btn.innerHTML = '<span class="material-symbols-outlined text-3xl">home</span>';
@@ -424,6 +529,11 @@ function calculateSpeed(lat1, lng1, lat2, lng2, timeMs) {
 }
 
 function updateHexagon(lat, lng) {
+  if (!validateCoordinates(lat, lng)) {
+    showToast('❌ Invalid GPS coordinates', 'error');
+    return;
+  }
+  
   const h3Index = h3.latLngToCell(lat, lng, 9);
 
   currentHexLayer.clearLayers();
@@ -465,15 +575,26 @@ async function captureHex(lat, lng, h3Index, speed) {
     runPath.addLatLng([lat, lng]);
   }
   
+  // Validate coordinates
+  if (!validateCoordinates(lat, lng)) {
+    showToast('❌ Invalid coordinates', 'error');
+    return;
+  }
+  
   // Rate limit: only capture every 10 seconds
   const now = Date.now();
   if (now - lastCaptureTime < CAPTURE_COOLDOWN) {
     const remaining = Math.ceil((CAPTURE_COOLDOWN - (now - lastCaptureTime)) / 1000);
-    document.getElementById('statusMessage').textContent = `Cooldown: ${remaining}s`;
-    return;
+    return; // Silent cooldown
   }
   
   lastCaptureTime = now;
+  
+  // Check if offline
+  if (!isOnline) {
+    queueCapture(lat, lng, h3Index, speed);
+    return;
+  }
   
   // Always capture hexes regardless of run status
   try {
@@ -486,20 +607,25 @@ async function captureHex(lat, lng, h3Index, speed) {
     const data = await response.json();
     
     if (response.status === 429) {
-      document.getElementById('statusMessage').textContent = 'Rate limited - wait 10s';
+      showToast('⏳ Slow down! Wait 10 seconds', 'warning');
       return;
     }
     
     if (data.passiveMode) {
-      document.getElementById('statusMessage').textContent = 'Passive Mode';
+      showToast('🚗 Too fast! Passive mode', 'warning');
     } else if (data.success) {
-      document.getElementById('statusMessage').textContent = data.message;
+      if (data.conquered) {
+        showToast('⬡ ' + data.message, 'success');
+      }
       document.getElementById('capturedCount').textContent = data.stats.hexes;
       document.getElementById('energyValue').textContent = data.stats.energy;
       loadVisitedHexes();
+    } else if (data.message) {
+      showToast(data.message, 'warning');
     }
   } catch (error) {
     console.error('Capture error:', error);
+    queueCapture(lat, lng, h3Index, speed);
   }
 }
 

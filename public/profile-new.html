@@ -254,7 +254,7 @@ async function loadProfile() {
     document.getElementById('energyLevel').textContent = data.energy;
     
     document.getElementById('factionName').textContent = data.faction.replace('_', ' ');
-    document.getElementById('playerClass').textContent = data.playerClass || 'Scout';
+    document.getElementById('playerClass').textContent = data.player_class || 'Scout';
     document.getElementById('activityMode').textContent = data.activityMode === 'CAVALRY' ? 'Cavalry' : 'Foot Soldier';
     
   } catch (error) {

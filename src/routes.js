@@ -25,8 +25,22 @@ router.post('/move', moveLimit, async (req, res) => {
   try {
     const { lat, lng, h3Index, userId, speed = 0 } = req.body;
 
+    // Input validation
     if (!lat || !lng || !userId) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate coordinate bounds
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({ error: 'Invalid coordinate type' });
+    }
+    
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: 'Coordinates out of bounds' });
+    }
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      return res.status(400).json({ error: 'Invalid coordinates' });
     }
 
     if (speed > 30) {
