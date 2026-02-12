@@ -6,9 +6,9 @@ const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
 const moveLimit = rateLimit({
-  windowMs: 10000,
+  windowMs: 5000,
   max: 1,
-  message: { error: 'Too many requests, wait 10 seconds' }
+  message: { error: 'Too many requests, wait 5 seconds' }
 });
 
 const FACTION_COLORS = {
