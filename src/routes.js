@@ -122,6 +122,15 @@ router.post('/move', moveLimit, async (req, res) => {
         // Defender loses energy while protecting (half of attack cost)
         const defenderEnergyCost = Math.floor(energyCost / 2);
         
+        // Defense rewards based on level
+        const defenseRewards = {
+          1: 30,
+          2: 50,
+          3: 70,
+          4: 90,
+          5: 150
+        };
+        
         if (userEnergy >= energyCost) {
           await connection.query(
             'UPDATE hexagons SET owner_id = ?, faction = ?, defense_level = 1, captured_at = NOW() WHERE h3_index = ?',
@@ -140,11 +149,12 @@ router.post('/move', moveLimit, async (req, res) => {
           }
         } else {
           message = `Not enough energy (need ${energyCost})`;
-          // Failed capture: attacker loses attempt energy, defender loses protection energy
+          // Failed capture: defender gets reward for successful defense
+          const defenseReward = defenseRewards[defenseLevel] || 30;
           if (existing[0].owner_id) {
             await connection.query(
-              'UPDATE users SET energy = GREATEST(energy - ?, 0) WHERE id = ?',
-              [defenderEnergyCost, existing[0].owner_id]
+              'UPDATE users SET energy = LEAST(energy + ?, 100) WHERE id = ?',
+              [defenseReward, existing[0].owner_id]
             );
           }
         }

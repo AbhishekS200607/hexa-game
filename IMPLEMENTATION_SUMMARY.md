@@ -74,13 +74,13 @@
 | **Def 5** | -50 | +150 | **+100** ✅ |
 
 ### Defender Energy:
-| Defense Level | Protection Cost (per attack) |
-|--------------|-----------------------------|
-| **Def 1** | -5 energy |
-| **Def 2** | -10 energy |
-| **Def 3** | -15 energy |
-| **Def 4** | -20 energy |
-| **Def 5** | -25 energy |
+| Defense Level | If Captured | If Defended |
+|--------------|-------------|-------------|
+| **Def 1** | -5 energy | **+30 energy** ✅ |
+| **Def 2** | -10 energy | **+50 energy** ✅ |
+| **Def 3** | -15 energy | **+70 energy** ✅ |
+| **Def 4** | -20 energy | **+90 energy** ✅ |
+| **Def 5** | -25 energy | **+150 energy** ✅ |
 
 ### Other Energy Sources:
 | Event | Energy Change |
