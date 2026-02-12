@@ -41,10 +41,11 @@ if (isNearHome) {
 | Scenario | Energy Change | Logic |
 |----------|--------------|-------|
 | **Home Base** | +10 | Restore energy faster at home |
-| **Own Territory** | +3 | Small boost on friendly hexes |
-| **Neutral Hex** | +2 | Minimal gain for exploration |
-| **Enemy Capture** | -10 to -50 | Cost based on defense level (no refund) |
-| **Failed Capture** | +2 | No energy lost if capture fails |
+| **Own Territory** | +4 | Small boost on friendly hexes (+3) + walking (+1) |
+| **Neutral Hex** | +3 | Exploration (+2) + walking (+1) |
+| **Enemy Capture** | -9 to -49 | Cost (10-50) + walking bonus (+1) |
+| **Failed Capture** | +3 | No cost + exploration (+2) + walking (+1) |
+| **Walking (Passive)** | +1 | Restores energy while moving |
 
 ## Defense Level Costs:
 
@@ -77,8 +78,8 @@ energyCost = Math.floor(baseCost * 0.8);
 ```
 Starting Energy: 100
 Capture enemy hex (defense 3): -30 energy
-No energy refund
-Final Energy: 70
+Walking bonus: +1 energy
+Final Energy: 71
 ```
 
 ### Scenario 2: At Home Base
@@ -89,12 +90,13 @@ Visit home hex again: +10 energy
 Final Energy: 90
 ```
 
-### Scenario 3: Reinforcing Own Territory
+### Scenario 3: Walking Through Neutral Territory
 ```
-Starting Energy: 90
-Reinforce own hex: +3 energy
-Reinforce own hex: +3 energy
-Final Energy: 96
+Starting Energy: 50
+Visit neutral hex: +3 energy (2 exploration + 1 walking)
+Visit neutral hex: +3 energy
+Visit neutral hex: +3 energy
+Final Energy: 59
 ```
 
 ## Game Balance:
