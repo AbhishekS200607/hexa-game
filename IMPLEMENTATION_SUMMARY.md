@@ -72,7 +72,11 @@
 | Home Base | +10 |
 | Own Territory | +4 |
 | Neutral Hex | +3 |
-| Enemy Capture | -30 + 20 bonus = -10 net |
+| Enemy Capture (Def 1) | -10 + 30 bonus = +20 net |
+| Enemy Capture (Def 2) | -20 + 30 bonus = +10 net |
+| Enemy Capture (Def 3) | -30 + 30 bonus = 0 net |
+| Enemy Capture (Def 4) | -40 + 30 bonus = -10 net |
+| Enemy Capture (Def 5) | -50 + 30 bonus = -20 net |
 | Defender (attacked) | +20 |
 | Defender (defended) | +20 |
 

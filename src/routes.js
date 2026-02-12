@@ -164,9 +164,9 @@ router.post('/move', moveLimit, async (req, res) => {
       
       // Energy logic: restore at home, gain while walking, capture bonus
       if (conquered && existing.length > 0) {
-        // Successful enemy capture: +20 bonus
-        userEnergy = Math.min(userEnergy + 20 + baseEnergyGain, 100);
-        message += ' +20 capture bonus!';
+        // Successful enemy capture: +30 bonus (increased from 20)
+        userEnergy = Math.min(userEnergy + 30 + baseEnergyGain, 100);
+        message += ' +30 capture bonus!';
       } else if (isNearHome) {
         userEnergy = Math.min(userEnergy + 10, 100); // +10 at home base
       } else if (existing.length > 0 && existing[0].owner_id === userId) {
