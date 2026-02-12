@@ -482,20 +482,36 @@ async function loadVisitedHexes() {
       return;
     }
     
+    // Group hexes by owner to calculate territory size
+    const ownerHexes = {};
+    data.hexData.forEach(hex => {
+      if (!ownerHexes[hex.ownerId]) {
+        ownerHexes[hex.ownerId] = [];
+      }
+      ownerHexes[hex.ownerId].push(hex);
+    });
+    
     data.hexData.forEach(hex => {
       const center = h3.cellToLatLng(hex.h3Index);
+      const isMyHex = hex.ownerId == userId;
+      
+      // Calculate radius based on owner's total hexes
+      const ownerHexCount = ownerHexes[hex.ownerId]?.length || 1;
+      const baseRadius = 60;
+      const radiusMultiplier = Math.min(1 + (ownerHexCount / 10), 5); // Max 5x size
+      const radius = baseRadius * radiusMultiplier;
       
       const defenseColors = ['#4ADEBD', '#85c3a8', '#FFD700', '#FF8C56', '#FF4757'];
       const circleColor = defenseColors[hex.defenseLevel - 1] || hex.color;
-      const opacity = 0.2 + (hex.defenseLevel * 0.1);
+      const opacity = isMyHex ? 0.3 + (hex.defenseLevel * 0.1) : 0.15 + (hex.defenseLevel * 0.05);
       
       L.circle([center[0], center[1]], {
-        radius: 60,
+        radius: radius,
         color: circleColor,
         fillColor: circleColor,
         fillOpacity: opacity,
-        weight: 2 + hex.defenseLevel,
-        opacity: 0.6 + (hex.defenseLevel * 0.08)
+        weight: isMyHex ? 3 + hex.defenseLevel : 2,
+        opacity: isMyHex ? 0.8 : 0.4
       }).addTo(visitedHexesLayer);
       
       const label = L.marker([center[0], center[1]], {
